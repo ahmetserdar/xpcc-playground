@@ -1,13 +1,9 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
+# Gedit backups
+*~
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
+# Build Dir
+build/
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+# Scons
+.sconsign.dblite
+
