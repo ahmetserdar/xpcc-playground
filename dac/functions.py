@@ -7,16 +7,14 @@ def sine(pts, low=0, high=0xfff):
 	omega     = 2 * math.pi / pts
 	amplitude = high - low
 	offset    = (high + low) / 2
-	print("omega: %s" % omega)
-	print("amplitude: %s" % amplitude)
-	print("offset: %s" % offset)
 	amplitude = amplitude / 2
 	return [int(offset + amplitude * math.sin(omega * x)) for x in range(pts)]
 
 
 
 CPP_LIST_TEMPLATE = """
-static constexpr uint16_t {{name}}[{{lst|length}}] = {
+static constexpr uint16_t {{name|upper}}_LENGTH = {{lst|length}};
+static constexpr uint16_t {{name|upper}}[{{lst|length}}] = {
 {% for l in lst -%}
 {{l}},
 {% endfor -%}

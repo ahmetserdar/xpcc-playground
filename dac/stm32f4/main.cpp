@@ -11,11 +11,13 @@
 
 #include "../functions.hpp"
 
+typedef LedBlue Led;
+
 MAIN_FUNCTION
 {
 	defaultSystemClock::enable();
 
-	LedBlue::setOutput(xpcc::Gpio::Low);
+	Led::setOutput(xpcc::Gpio::Low);
 
 	// Enable DAC Clock
 	RCC->APB1ENR |= RCC_APB1ENR_DACEN;
@@ -33,10 +35,10 @@ MAIN_FUNCTION
 	uint16_t ii = 0;
 	while (1)
 	{
-		DAC->DHR12R1 = sine[ii];
+		DAC->DHR12R1 = SINE[ii];
 		++ii;
-		if(ii >= 64) ii = 0;
-		LedBlue::toggle();
+		if(ii >= SINE_LENGTH) ii = 0;
+		Led::toggle();
 	}
 
 	return 0;
