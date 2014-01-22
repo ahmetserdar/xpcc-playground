@@ -1,0 +1,43 @@
+// coding: utf-8
+/* Copyright (c) 2014, Electronic Kiwi
+* All Rights Reserved.
+*
+* The file is part of the xpcc-playground and is released under the 3-clause BSD
+* license. See the file `LICENSE` for the full license governing this code.
+*/
+
+#include <xpcc/architecture.hpp>
+#include "../../xpcc/examples/stm32f3_discovery/stm32f3_discovery.hpp"
+
+#include "../functions.hpp"
+
+MAIN_FUNCTION
+{
+	defaultSystemClock::enable();
+
+	LedNorth::setOutput(xpcc::Gpio::Low);
+
+	// Enable DAC Clock
+	RCC->APB1ENR |= RCC_APB1ENR_DACEN;
+
+	// Reset DAC
+	RCC->APB1RSTR |=  RCC_APB1RSTR_DACRST;
+	RCC->APB1RSTR &= ~RCC_APB1RSTR_DACRST;
+
+	// setAnalog for DAC Output Pin....
+	GpioInputA4::connect(Adc2::Channel1);
+
+	// Enable DAC
+	DAC->CR |= DAC_CR_EN1 | DAC_CR_BOFF1;
+
+	uint16_t ii = 0;
+	while (1)
+	{
+		DAC->DHR12R1 = sine[ii];
+		++ii;
+		if(ii >= 64) ii = 0;
+		LedNorth::toggle();
+	}
+
+	return 0;
+}
