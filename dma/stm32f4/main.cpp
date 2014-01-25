@@ -168,37 +168,11 @@ MAIN_FUNCTION
 		samples[i] = 0xffff;
 	}
 
-	// Setup DMA2
-	// enable clock
-	RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
-	// reset timer
-	RCC->AHB1RSTR |=  RCC_AHB1RSTR_DMA2RST;
-	RCC->AHB1RSTR &= ~RCC_AHB1RSTR_DMA2RST;
-	// Using Stream6
-	DMA2_Stream6->CR &= ~DMA_SxCR_EN;
-	while(DMA2_Stream6->CR & DMA_SxCR_EN); // wait for channel to be disabled
-	// Configure
-	DMA2_Stream6->CR = 	  static_cast<uint32_t>(Channel::Channel0)
-						// use Channel0 as it is connected to Timer1 Channel1-3
-						| static_cast<uint32_t>(MemoryBurstTransfer::Single)
-						| static_cast<uint32_t>(PeripheralBurstTransfer::Single)
-						| static_cast<uint32_t>(Priority::VeryHigh)
-						| static_cast<uint32_t>(MemoryDataSize::HalfWord)
-						| static_cast<uint32_t>(PeripheralDataSize::HalfWord)
-						| static_cast<uint32_t>(MemoryIncrementMode::Increment)
-				// since in Mem2Mem mode peripheral seems to be the source:
-						| static_cast<uint32_t>(PeripheralIncrementMode::Fixed)
-						| static_cast<uint32_t>(DataTransferDirection::PeripheralToMemory)
-				// does this only mean that the peripheral event controlls the dma?
-						| static_cast<uint32_t>(FLowControl::Dma);
-	// Source (DMA_SxPAR) is GPIO Port E
-	DMA2_Stream6->PAR = reinterpret_cast<uint32_t>(&(GPIOE->IDR ));
-	// Sink (DMA_SxM0AR) is memory
-	DMA2_Stream6->M0AR = reinterpret_cast<uint32_t>(&samples[0]);
-	// transfer as many bytes as fit into allocated memory
-	DMA2_Stream6->NDTR = SAMPLE_LENGTH;
-	// do not use FIFO
-	DMA2_Stream6->FCR = 0;
+	Dma2::enable();
+	Dma2::Stream6::stop();
+	Dma2::Stream6::configure(DmaBase::Channel::Channel0, SAMPLE_LENGTH, DmaBase::Priority::VeryHigh);
+	Dma2::Stream6::setPeripheralSource(reinterpret_cast<uint16_t*>(const_cast<uint32_t*>(&(GPIOE->IDR))));
+	Dma2::Stream6::setMemoryDestination(&samples[0]);
 
 	// Start Timer1
 	constexpr uint16_t OVERFLOW = (defaultSystemClock::Timer1 / SAMPLE_FREQUENCY) - 1;
@@ -233,10 +207,8 @@ MAIN_FUNCTION
 
 
 	LedBlue::set();
-	// Enable DMA
-	DMA2_Stream6->CR |= DMA_SxCR_EN;
-	// Wait for DMA to finish
-	while(DMA2_Stream6->CR & DMA_SxCR_EN);
+	Dma2::Stream6::start();
+	while(!Dma2::Stream6::isFinished());
 	LedBlue::reset();
 
 	// Output Sampled Data
