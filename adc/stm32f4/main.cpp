@@ -11,6 +11,12 @@
 #include <xpcc/debug/logger.hpp>
 
 // ----------------------------------------------------------------------------
+// Settings
+static constexpr uint32_t Channels = 4;
+static constexpr uint32_t Samples = 64; // per channel
+static constexpr uint32_t SamplingFrequency = 8 * 40 * kHz1;
+
+// ----------------------------------------------------------------------------
 // Set the log level
 #undef	XPCC_LOG_LEVEL
 #define	XPCC_LOG_LEVEL xpcc::log::DEBUG
@@ -26,53 +32,29 @@ xpcc::IODeviceWrapper<Usart2> loggerDevice;
 xpcc::log::Logger xpcc::log::info(loggerDevice);
 xpcc::log::Logger xpcc::log::debug(loggerDevice);
 
-static constexpr uint32_t BufferLength = 1024;
-uint16_t buffer[BufferLength];
-
-static  void
-printBits(uint32_t v, int8_t max, int8_t min)
-{
-	for(int8_t ii = max; ii >= min; --ii) {
-		if(ii >= 10) {
-			XPCC_LOG_DEBUG << "| " << ii;
-		} else {
-			XPCC_LOG_DEBUG << "|  " << ii;
-		}
-	}
-	XPCC_LOG_DEBUG << "|" << xpcc::endl << "+";
-	for(int8_t ii = max; ii >= min; --ii) {
-		XPCC_LOG_DEBUG << "---+";
-	}
-	XPCC_LOG_DEBUG << xpcc::endl;
-	for(int8_t ii = max; ii >= min; --ii) {
-		bool b = static_cast<bool>(v & (1<<ii));
-		XPCC_LOG_DEBUG << "| " << b << " ";
-	}
-	XPCC_LOG_DEBUG << "|" << xpcc::endl;
-}
-
-static void
-printRegister(char* name, const volatile long unsigned int reg)
-{
-	XPCC_LOG_DEBUG << name << xpcc::endl;
-	printBits(static_cast<uint32_t>(reg), 31, 16);
-	printBits(static_cast<uint32_t>(reg), 15,  0);
-}
+static constexpr uint32_t BufferLength = Samples * Channels;
+uint16_t buffer[Samples][Channels];
 
 // ----------------------------------------------------------------------------
 MAIN_FUNCTION
 {
 	defaultSystemClock::enable();
 
-
-	for(uint32_t ii = 0; ii < BufferLength; ++ii) {
-		buffer[ii] = 0xff; // signature bits
-	}
-
 	// initialize Uart2 for XPCC_LOG_INFO
 	GpioOutputA2::connect(Usart2::Tx);
 	GpioInputA3::connect(Usart2::Rx);
 	Usart2::initialize<defaultSystemClock, 115200>(12);
+
+	// print application information
+	XPCC_LOG_INFO << "#############################################" << xpcc::endl;
+	XPCC_LOG_INFO << "# ADC Demo for STM32F4Discoveryboards       #" << xpcc::endl;
+	XPCC_LOG_INFO << "# powered by XPCC                           #" << xpcc::endl;
+	XPCC_LOG_INFO << "# https://github.com/roboterclubaachen/xpcc #" << xpcc::endl;
+	XPCC_LOG_INFO << "#############################################" << xpcc::endl;
+	XPCC_LOG_INFO << "# Sampling Frequency:  " << kHz(SamplingFrequency) << "kHz" << xpcc::endl;
+	XPCC_LOG_INFO << "# Number of Channels:  " << Channels << xpcc::endl;
+	XPCC_LOG_INFO << "# Samples per Channel: " << Samples << xpcc::endl;
+	XPCC_LOG_INFO << "#############################################" << xpcc::endl;
 
 	// initialize Adc1
 	Adc1::initialize(Adc1::Prescaler::Div8);
@@ -80,50 +62,57 @@ MAIN_FUNCTION
 	AdcIn1::connect(Adc1::Channel8);
 	AdcIn2::connect(Adc1::Channel9);
 	AdcIn3::connect(Adc1::Channel10);
-	Adc1::setChannel(AdcIn0::Adc1Channel, Adc1::SampleTime::Cycles15);
-	Adc1::addChannel(AdcIn1::Adc1Channel, Adc1::SampleTime::Cycles15);
-	Adc1::addChannel(AdcIn2::Adc1Channel, Adc1::SampleTime::Cycles15);
-	Adc1::addChannel(AdcIn3::Adc1Channel, Adc1::SampleTime::Cycles15);
+	Adc1::setChannel(AdcIn0::Adc1Channel, Adc1::SampleTime::Cycles3);
+	Adc1::addChannel(AdcIn1::Adc1Channel, Adc1::SampleTime::Cycles3);
+	Adc1::addChannel(AdcIn2::Adc1Channel, Adc1::SampleTime::Cycles3);
+	Adc1::addChannel(AdcIn3::Adc1Channel, Adc1::SampleTime::Cycles3);
 
 	// enable scan mode
 	ADC1->CR1 |= ADC_CR1_SCAN;
 
-
 	// initialize DMA
 	Dma2::enable();
 	Dma2::Stream0::stop();
-	Dma2::Stream0::configure(DmaBase::Channel::Channel0, 4, DmaBase::Priority::VeryHigh);
+	Dma2::Stream0::configure(DmaBase::Channel::Channel0, BufferLength, DmaBase::Priority::VeryHigh);
 	Dma2::Stream0::setPeripheralSource(reinterpret_cast<uint16_t*>(const_cast<uint32_t*>(&(ADC1->DR))));
-	Dma2::Stream0::setMemoryDestination(&buffer[0]);
+	Dma2::Stream0::setMemoryDestination(&buffer[0][0]);
 	Dma2::Stream0::start();
 
 	// enable DMA (DDS enable DMA for following conversions)
-	ADC1->CR2 |= ADC_CR2_DDS | ADC_CR2_DMA; // ADC_CR2_DDS | 
+	ADC1->CR2 |= ADC_CR2_DDS | ADC_CR2_DMA;
 
-	//printRegister("ADC1->SQR1", ADC1->SQR1);
-	//printRegister("ADC1->SQR3", ADC1->SQR3);
-	//printRegister("ADC1->CR1",  ADC1->CR1);
-	//printRegister("ADC1->SMPR2", ADC1->SMPR2);
-	//printRegister("ADC1->SMPR1", ADC1->SMPR1);
+	// Use Timer 1 CC1 event, falling rising edge as Trigger
+	ADC1->CR2 |= (0b0000 << 24) | ADC_CR2_EXTEN_0;
 
-	// Sample ADC
-	Adc1::startConversion();
-	xpcc::delay_ms(200);
-	Adc1::startConversion();
-	xpcc::delay_ms(200);
+	// Setup Timer 1 to use as trigger
+	const uint32_t Overflow = defaultSystemClock::Timer1 / SamplingFrequency;
+	Timer1::enable();
+	GpioOutputA8::connect(Timer1::Channel1);	// for debugging
+	Timer1::setMode(Timer1::Mode::UpCounter);
+	Timer1::setPrescaler(1);
+	Timer1::setOverflow(Overflow);
+	Timer1::configureOutputChannel(1, Timer1::OutputCompareMode::Pwm, Overflow / 2);
+	Timer1::applyAndReset();
+	Timer1::start();
+	Timer1::enableOutput();						// necessary to see signal on PA8
 
-	for(uint8_t ii = 0; ii < 4; ++ii) {
-		XPCC_LOG_INFO << "buffer[" << ii << "]" << xpcc::endl;
-		int adcValue = buffer[ii];
-		XPCC_LOG_INFO << "adcValue=" << adcValue;
-		float voltage = adcValue * 3.3 / 0xfff;
-		XPCC_LOG_INFO << " voltage=" << static_cast<int>(voltage*1000) << "mV" << xpcc::endl;
+	// Wait for DMA to fill up
+	while(!Dma2::Stream0::isFinished());
+
+	// Print results
+	for(uint32_t channel = 0; channel < Channels; ++channel){
+		XPCC_LOG_INFO << "Channel " << channel;
+		XPCC_LOG_INFO <<" -------------------------------------------------" << xpcc::endl;
+		for(uint32_t sample = 0; sample < Samples; ++sample) {
+			int v = buffer[sample][channel] * 20 / 0xfff;
+			for(uint8_t jj = 0; jj < v; ++jj) {
+				XPCC_LOG_INFO << "#";
+			}
+			XPCC_LOG_INFO << xpcc::endl;
+		}
 	}
 
-	while (1)
-	{
-
-	}
+	while (1){}
 
 	return 0;
 }
