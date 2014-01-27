@@ -64,6 +64,11 @@ MAIN_FUNCTION
 {
 	defaultSystemClock::enable();
 
+
+	for(uint32_t ii = 0; ii < BufferLength; ++ii) {
+		buffer[ii] = 0xff; // signature bits
+	}
+
 	// initialize Uart2 for XPCC_LOG_INFO
 	GpioOutputA2::connect(Usart2::Tx);
 	GpioInputA3::connect(Usart2::Rx);
@@ -75,11 +80,13 @@ MAIN_FUNCTION
 	AdcIn1::connect(Adc1::Channel8);
 	AdcIn2::connect(Adc1::Channel9);
 	AdcIn3::connect(Adc1::Channel10);
-	Adc1::setChannel(AdcIn1::Adc1Channel, Adc1::SampleTime::Cycles480);
-	Adc1::addChannel(AdcIn0::Adc1Channel, Adc1::SampleTime::Cycles480);
-	//Adc1::addChannel(AdcIn2::Adc1Channel, Adc1::SampleTime::Cycles480);
-	//Adc1::addChannel(AdcIn3::Adc1Channel, Adc1::SampleTime::Cycles480);
+	Adc1::setChannel(AdcIn0::Adc1Channel, Adc1::SampleTime::Cycles15);
+	Adc1::addChannel(AdcIn1::Adc1Channel, Adc1::SampleTime::Cycles15);
+	Adc1::addChannel(AdcIn2::Adc1Channel, Adc1::SampleTime::Cycles15);
+	Adc1::addChannel(AdcIn3::Adc1Channel, Adc1::SampleTime::Cycles15);
 
+	// enable scan mode
+	ADC1->CR1 |= ADC_CR1_SCAN;
 
 
 	// initialize DMA
@@ -90,7 +97,7 @@ MAIN_FUNCTION
 	Dma2::Stream0::setMemoryDestination(&buffer[0]);
 	Dma2::Stream0::start();
 
-	// enable DMA
+	// enable DMA (DDS enable DMA for following conversions)
 	ADC1->CR2 |= ADC_CR2_DDS | ADC_CR2_DMA; // ADC_CR2_DDS | 
 
 	//printRegister("ADC1->SQR1", ADC1->SQR1);
@@ -101,9 +108,8 @@ MAIN_FUNCTION
 
 	// Sample ADC
 	Adc1::startConversion();
-	//while(!Adc1::isConversionFinished());
-	//Adc1::enableFreeRunningMode();
-
+	xpcc::delay_ms(200);
+	Adc1::startConversion();
 	xpcc::delay_ms(200);
 
 	for(uint8_t ii = 0; ii < 4; ++ii) {
