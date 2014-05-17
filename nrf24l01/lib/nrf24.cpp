@@ -16,11 +16,11 @@
 uint8_t payload_len;
 
 // FIXME: correct pin definitions
-typedef GpioA0 Ce;
-typedef GpioA0 Csn;
-typedef GpioA0 Sck;
-typedef GpioA0 Mosi;
-typedef GpioA0 Miso;
+typedef xpcc::stm32::GpioA0 Ce;
+typedef xpcc::stm32::GpioA0 Csn;
+typedef xpcc::stm32::GpioA0 Sck;
+typedef xpcc::stm32::GpioA0 Mosi;
+typedef xpcc::stm32::GpioA0 Miso;
 
 
 
@@ -307,7 +307,7 @@ uint8_t spi_transfer(uint8_t tx)
         Sck::set();        
 
         rx = rx << 1;
-        if(Miso_digitalRead())
+        if(Miso::read())
         {
             rx |= 0x01;
         }
