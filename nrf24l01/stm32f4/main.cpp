@@ -7,6 +7,7 @@
 */
 
 #include <xpcc/architecture.hpp>
+#include <nrf24.hpp>
 #include "../../xpcc/examples/stm32f4_discovery/stm32f4_discovery.hpp"
 
 

@@ -14,9 +14,8 @@
 #ifndef NRF24
 #define NRF24
 
-#include "nRF24L01.h"
-#include <stdint.h>
-
+#include "nRF24L01.hpp"
+#include <xpcc/architecture.hpp>
 #define LOW 0
 #define HIGH 1
 
