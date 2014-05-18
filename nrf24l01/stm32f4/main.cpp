@@ -25,6 +25,8 @@ xpcc::log::Logger xpcc::log::debug(loggerDevice);
 
 typedef LedBlue Led;
 
+static constexpr bool isReceiverNotTransmitter = true;
+
 MAIN_FUNCTION
 {
 	defaultSystemClock::enable();
@@ -39,9 +41,24 @@ MAIN_FUNCTION
 	XPCC_LOG_INFO << "Nrf24L01+ Test" << xpcc::endl;
 
 
-	while (1)
-	{
-		Led::toggle();
-		xpcc::delay_ms(500);
+	if(isReceiverNotTransmitter) {
+	///////////// Receiver /////////////////////////////////////////////////////
+		XPCC_LOG_INFO << "acting as receiver" << xpcc::endl;
+		while (1)
+		{
+			Led::toggle();
+			xpcc::delay_ms(500);
+		}
+	} else {
+	///////////// Transmitter //////////////////////////////////////////////////
+		XPCC_LOG_INFO << "acting as transmitter" << xpcc::endl;
+		while (1)
+		{
+			Led::toggle();
+			xpcc::delay_ms(100);
+		}
 	}
+
+
+
 }
