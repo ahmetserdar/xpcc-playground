@@ -73,6 +73,19 @@ MAIN_FUNCTION
 		nrf24_rx_address(rx_address);
 		XPCC_LOG_DEBUG << "called nrf24_rx_address({0xE7,0xE7,0xE7,0xE7,0xE7})..." << xpcc::endl;
 
+		while (1)
+		{
+			if(nrf24_dataReady())
+			{
+				nrf24_getData(data_array);
+				XPCC_LOG_INFO << "Msg: 0x" << xpcc::hex
+					<< data_array[0] << data_array[1] << data_array[2]
+					<< data_array[3] << xpcc::endl;
+			}
+			Led::toggle();
+			xpcc::delay_ms(100);
+		}
+
 	} else {
 	///////////// Transmitter //////////////////////////////////////////////////
 		XPCC_LOG_INFO << "acting as transmitter" << xpcc::endl;
@@ -142,29 +155,15 @@ MAIN_FUNCTION
 
 			/* Wait a little ... */
 			_delay_ms(10);
-		}
-
-		while (1)
-		{
-			if(nrf24_dataReady())
-			{
-				nrf24_getData(data_array);
-				XPCC_LOG_INFO << "Msg: 0x" << xpcc::hex
-					<< data_array[0] << data_array[1] << data_array[2]
-					<< data_array[3] << xpcc::endl;
-			}
 			Led::toggle();
-			xpcc::delay_ms(100);
-		}
-
-
-		while (1)
-		{
-			Led::toggle();
-			xpcc::delay_ms(100);
 		}
 	}
 
+	while (1)
+	{
+		Led::toggle();
+		xpcc::delay_ms(100);
+	}
 
 
 }
