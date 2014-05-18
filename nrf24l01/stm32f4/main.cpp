@@ -7,9 +7,21 @@
 */
 
 #include <xpcc/architecture.hpp>
+#include <xpcc/debug/logger.hpp>
 #include <nrf24.hpp>
 #include "../../xpcc/examples/stm32f4_discovery/stm32f4_discovery.hpp"
 
+
+
+xpcc::IODeviceWrapper< Usart2 > loggerDevice;
+xpcc::log::Logger xpcc::log::error(loggerDevice);
+xpcc::log::Logger xpcc::log::warning(loggerDevice);
+xpcc::log::Logger xpcc::log::info(loggerDevice);
+xpcc::log::Logger xpcc::log::debug(loggerDevice);
+
+// Set the log level
+#undef	XPCC_LOG_LEVEL
+#define	XPCC_LOG_LEVEL xpcc::log::DEBUG
 
 typedef LedBlue Led;
 
@@ -18,6 +30,13 @@ MAIN_FUNCTION
 	defaultSystemClock::enable();
 
 	Led::setOutput(xpcc::Gpio::Low);
+
+	// Initialize Usart
+	GpioOutputA2::connect(Usart2::Tx);
+	GpioInputA3::connect(Usart2::Rx, Gpio::InputType::PullUp);
+	Usart2::initialize<defaultSystemClock, 115200>(10);
+
+	XPCC_LOG_INFO << "Nrf24L01+ Test" << xpcc::endl;
 
 
 	while (1)
