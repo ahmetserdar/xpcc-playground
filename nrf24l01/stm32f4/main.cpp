@@ -44,10 +44,34 @@ MAIN_FUNCTION
 	if(isReceiverNotTransmitter) {
 	///////////// Receiver /////////////////////////////////////////////////////
 		XPCC_LOG_INFO << "acting as receiver" << xpcc::endl;
+
+		uint8_t data_array[4];
+		const uint8_t tx_address[5] = {0xD7,0xD7,0xD7,0xD7,0xD7};
+		const uint8_t rx_address[5] = {0xE7,0xE7,0xE7,0xE7,0xE7};
+
+		nrf24_init();
+		XPCC_LOG_DEBUG << "called nrf24_init()..." << xpcc::endl;
+
+		nrf24_config(2,4);
+		XPCC_LOG_DEBUG << "called nrf24_config(2,4)..." << xpcc::endl;
+
+		nrf24_tx_address(tx_address);
+		XPCC_LOG_DEBUG << "called nrf24_tx_address({0xD7,0xD7,0xD7,0xD7,0xD7})..." << xpcc::endl;
+
+		nrf24_rx_address(rx_address);
+		XPCC_LOG_DEBUG << "called nrf24_rx_address({0xE7,0xE7,0xE7,0xE7,0xE7})..." << xpcc::endl;
+
 		while (1)
 		{
+			if(nrf24_dataReady())
+			{
+				nrf24_getData(data_array);
+				XPCC_LOG_INFO << "Msg: 0x" << xpcc::hex
+					<< data_array[0] << data_array[1] << data_array[2]
+					<< data_array[3] << xpcc::endl;
+			}
 			Led::toggle();
-			xpcc::delay_ms(500);
+			//xpcc::delay_ms(500);
 		}
 	} else {
 	///////////// Transmitter //////////////////////////////////////////////////
