@@ -7,3 +7,6 @@ build/
 # Scons
 .sconsign.dblite
 
+.project
+.cproject
+.pydevproject
