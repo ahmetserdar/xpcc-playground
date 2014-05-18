@@ -27,16 +27,23 @@ typedef LedBlue Led;
 
 static constexpr bool isReceiverNotTransmitter = true;
 
+struct
+Fake8MHzSystemClock
+{
+	static constexpr int Usart2 = MHz16;
+};
+
+
 MAIN_FUNCTION
 {
-	defaultSystemClock::enable();
+	//defaultSystemClock::enable();
 
 	Led::setOutput(xpcc::Gpio::Low);
 
 	// Initialize Usart
 	GpioOutputA2::connect(Usart2::Tx);
 	GpioInputA3::connect(Usart2::Rx, Gpio::InputType::PullUp);
-	Usart2::initialize<defaultSystemClock, 115200>(10);
+	Usart2::initialize<Fake8MHzSystemClock, 115200>(10);
 
 	XPCC_LOG_INFO << "Nrf24L01+ Test" << xpcc::endl;
 
@@ -71,7 +78,7 @@ MAIN_FUNCTION
 					<< data_array[3] << xpcc::endl;
 			}
 			Led::toggle();
-			//xpcc::delay_ms(500);
+			xpcc::delay_ms(100);
 		}
 	} else {
 	///////////// Transmitter //////////////////////////////////////////////////
