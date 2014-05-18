@@ -16,11 +16,11 @@
 uint8_t payload_len;
 
 // FIXME: correct pin definitions
-typedef xpcc::stm32::GpioA0 Ce;
-typedef xpcc::stm32::GpioA0 Csn;
-typedef xpcc::stm32::GpioA0 Sck;
-typedef xpcc::stm32::GpioA0 Mosi;
-typedef xpcc::stm32::GpioA0 Miso;
+typedef xpcc::stm32::GpioA3 Ce;
+typedef xpcc::stm32::GpioA4 Csn;
+typedef xpcc::stm32::GpioA5 Sck;
+typedef xpcc::stm32::GpioA7 Mosi;
+typedef xpcc::stm32::GpioA6 Miso;
 
 
 
