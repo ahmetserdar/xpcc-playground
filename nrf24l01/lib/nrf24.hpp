@@ -27,8 +27,8 @@
 
 /* adjustment functions */
 void    nrf24_init();
-void    nrf24_rx_address(uint8_t* adr);
-void    nrf24_tx_address(uint8_t* adr);
+void    nrf24_rx_address(const uint8_t* adr);
+void    nrf24_tx_address(const uint8_t* adr);
 void    nrf24_config(uint8_t channel, uint8_t pay_length);
 
 /* state check functions */
@@ -58,10 +58,10 @@ void    nrf24_powerDown();
 
 /* low level interface ... */
 uint8_t spi_transfer(uint8_t tx);
-void    nrf24_transmitSync(uint8_t* dataout,uint8_t len);
-void    nrf24_transferSync(uint8_t* dataout,uint8_t* datain,uint8_t len);
+void    nrf24_transmitSync(const uint8_t* dataout,uint8_t len);
+void    nrf24_transferSync(const uint8_t* dataout,uint8_t* datain,uint8_t len);
 void    nrf24_configRegister(uint8_t reg, uint8_t value);
 void    nrf24_readRegister(uint8_t reg, uint8_t* value, uint8_t len);
-void    nrf24_writeRegister(uint8_t reg, uint8_t* value, uint8_t len);
+void    nrf24_writeRegister(uint8_t reg, const uint8_t* value, uint8_t len);
 
 #endif

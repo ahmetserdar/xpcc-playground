@@ -83,7 +83,7 @@ void nrf24_config(uint8_t channel, uint8_t pay_length)
 }
 
 /* Set the RX address */
-void nrf24_rx_address(uint8_t * adr) 
+void nrf24_rx_address(const uint8_t * adr) 
 {
     Ce::reset();
     nrf24_writeRegister(RX_ADDR_P1,adr,nrf24_ADDR_LEN);
@@ -97,7 +97,7 @@ uint8_t nrf24_payload_length()
 }
 
 /* Set the TX address */
-void nrf24_tx_address(uint8_t* adr)
+void nrf24_tx_address(const uint8_t* adr)
 {
     /* RX_ADDR_P0 must be set to the sending addr for auto ack to work. */
     nrf24_writeRegister(RX_ADDR_P0,adr,nrf24_ADDR_LEN);
@@ -320,7 +320,7 @@ uint8_t spi_transfer(uint8_t tx)
 }
 
 /* send and receive multiple bytes over SPI */
-void nrf24_transferSync(uint8_t* dataout,uint8_t* datain,uint8_t len)
+void nrf24_transferSync(const uint8_t* dataout,uint8_t* datain,uint8_t len)
 {
     uint8_t i;
 
@@ -332,7 +332,7 @@ void nrf24_transferSync(uint8_t* dataout,uint8_t* datain,uint8_t len)
 }
 
 /* send multiple bytes over SPI */
-void nrf24_transmitSync(uint8_t* dataout,uint8_t len)
+void nrf24_transmitSync(const uint8_t* dataout,uint8_t len)
 {
     uint8_t i;
     
@@ -362,7 +362,7 @@ void nrf24_readRegister(uint8_t reg, uint8_t* value, uint8_t len)
 }
 
 /* Write to a single register of nrf24 */
-void nrf24_writeRegister(uint8_t reg, uint8_t* value, uint8_t len) 
+void nrf24_writeRegister(uint8_t reg, const uint8_t* value, uint8_t len) 
 {
     Csn::reset();
     spi_transfer(W_REGISTER | (REGISTER_MASK & reg));
