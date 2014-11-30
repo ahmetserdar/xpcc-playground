@@ -23,6 +23,10 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #undef	XPCC_LOG_LEVEL
 #define	XPCC_LOG_LEVEL xpcc::log::DEBUG
 
+#include <xpcc_git_info.hpp>
+#include <xpcc_project_info.hpp>
+
+
 
 #include "../cc1101/registers.hpp"
 
@@ -38,6 +42,11 @@ MAIN_FUNCTION
 	GpioOutputA2::connect(Usart2::Tx);
 	GpioInputA3::connect(Usart2::Rx);
 	Usart2::initialize<defaultSystemClock, 115200>(10);
+
+	// Print project information
+	XPCC_LOG_INFO << "[log-start] " XPCC_PROJECT_NAME ": " __DATE__ "@" __TIME__ << xpcc::endl;
+	XPCC_LOG_INFO << "[git] " XPCC_GIT_SHA_ABBR " " XPCC_GIT_SUBJECT << xpcc::endl;
+	XPCC_LOG_INFO << "[git] " XPCC_GIT_AUTHOR "<" XPCC_GIT_AUTHOR_EMAIL ">" << xpcc::endl;
 
 	while (1)
 	{

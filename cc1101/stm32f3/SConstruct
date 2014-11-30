@@ -16,6 +16,10 @@ env.XpccLibrary()
 # create a file called 'defines.hpp' with all preprocessor defines if necessary
 env.Defines()
 
+# build xpcc_git_info.hpp and xpcc_project_info.hpp file
+env.GitInfoHeader()
+env.ProjectInfoHeader()
+
 env.Alias('size', env.Size(program))
 env.Alias('symbols', env.Symbols(program))
 env.Alias('defines', env.ShowDefines())
