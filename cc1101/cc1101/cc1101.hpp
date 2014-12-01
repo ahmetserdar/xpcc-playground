@@ -7,8 +7,8 @@
  */
 // ----------------------------------------------------------------------------
 
-#ifndef XPCC_CC1101_PHY_HPP
-#define XPCC_CC1101_PHY_HPP
+#ifndef XPCC_CC1101_HPP
+#define XPCC_CC1101_HPP
 
 #include <xpcc/processing/coroutine.hpp>
 #include <cstddef>
@@ -22,7 +22,7 @@ namespace radio
 
 /// Small base class for some common enum classes that do not depend on template parameters.
 class
-CC1101PhyBase : public CC1101Registers
+CC1101Base : public CC1101Registers
 {
 public:
 	/// Returned by `initialize` to indicate error conditions.
@@ -64,7 +64,7 @@ public:
  */
 template<typename Configuration>
 class
-CC1101Phy : protected xpcc::co::NestedCoroutine<1>, public CC1101PhyBase
+CC1101 : protected xpcc::co::NestedCoroutine<1>, public CC1101Base
 {
 public:
 	///
@@ -96,11 +96,11 @@ public:
 
 private:
 	/// Spi Master interface the cc1101 chip is connected to
-	/// remember to connect pins before using the CC1101Phy class
+	/// remember to connect pins before using the CC1101 class
 	typedef typename Configuration::SpiMaster SpiMaster;
-	/// Chips Select Gpio, configured as output outside of CC1101Phy class
+	/// Chips Select Gpio, configured as output outside of CC1101 class
 	typedef typename Configuration::Cs   Cs;
-	/// Miso Gpio, connected to Spi outside of CC1101Phy class
+	/// Miso Gpio, connected to Spi outside of CC1101 class
 	typedef typename Configuration::Miso Miso;
 	typedef typename Configuration::Gdo0 Gdo0;
 	typedef typename Configuration::Gdo2 Gdo2;
@@ -109,6 +109,6 @@ private:
 }	// namespace radio
 }	// namespace cc1101
 
-#include "phy_impl.hpp"
+#include "cc1101_impl.hpp"
 
-#endif	// XPCC_CC1101_PHY_HPP
+#endif	// XPCC_CC1101_HPP

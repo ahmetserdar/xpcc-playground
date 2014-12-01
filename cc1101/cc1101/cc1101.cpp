@@ -7,7 +7,7 @@
  */
 // ----------------------------------------------------------------------------
 
-#include "phy.hpp"
+#include "cc1101.hpp"
 
 namespace xpcc
 {
@@ -15,7 +15,7 @@ namespace radio
 {
 
 const char*
-CC1101PhyBase::enumToString(CC1101PhyBase::InitializeError e)
+CC1101Base::enumToString(CC1101Base::InitializeError e)
 {
 	switch(e) {
 	case InitializeError::None:

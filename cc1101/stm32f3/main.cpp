@@ -30,7 +30,7 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #include <xpcc/processing/timeout.hpp>
 #include <xpcc/processing/periodic_timer.hpp>
 #include <xpcc/processing/protothread.hpp>
-#include "../cc1101/phy.hpp"
+#include "../cc1101/cc1101.hpp"
 
 
 class MainThread : public xpcc::pt::Protothread
@@ -77,7 +77,7 @@ public:
 	};
 
 private:
-	typedef xpcc::radio::CC1101Phy<CC1101Config> Radio;
+	typedef xpcc::radio::CC1101<CC1101Config> Radio;
 	xpcc::Timeout<> timer;
 	xpcc::PeriodicTimer<> blinkTimer;
 	Radio radio;
@@ -106,7 +106,7 @@ MAIN_FUNCTION
 	XPCC_LOG_INFO << "[git] " XPCC_GIT_AUTHOR "<" XPCC_GIT_AUTHOR_EMAIL ">" << xpcc::endl;
 
 	// Initialize Spi
-	MainThread::CC1101Config::Cs::setOutput();
+	MainThread::CC1101Config::Cs::setOutput(xpcc::Gpio::High);
 	MainThread::CC1101Config::Miso::connect(SpiSimpleMaster3::Miso);
 	GpioOutputB5::connect(SpiSimpleMaster3::Mosi);
 	SpiSimpleMaster3::initialize<defaultSystemClock, 1125 * kHz1>();
