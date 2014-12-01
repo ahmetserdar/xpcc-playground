@@ -11,6 +11,7 @@
 #define XPCC_CC1101_PHY_HPP
 
 #include <xpcc/processing/coroutine.hpp>
+#include <cstddef>
 
 #include "registers.hpp"
 
@@ -31,6 +32,10 @@ public:
 		None,
 		InvalidSomething,
 	};
+
+	/// Translates the error code to its string representation.
+	static const char*
+	enumToString(InitializeError e);
 };
 
 
@@ -64,30 +69,30 @@ CC1101Phy : protected xpcc::co::NestedCoroutine<1>, public CC1101PhyBase
 public:
 	///
 	xpcc::co::Result<InitializeError>
-	initialize();
+	initialize(void *ctx);
 
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>
-	readRegister(Register reg);
+	readRegister(void *ctx, Register reg);
 
 	/// Reads values from `length` registers starting at the `reg`
 	///
 	/// The output will be written to memory starting at `values`.
 	/// Make sure that `length` bytes of memory are available.
 	xpcc::co::Result<void>
-	readRegister(Register reg, uint8_t* values, size_t length);
+	readRegister(void *ctx, Register reg, uint8_t* values, size_t length);
 
 	/// Writes `value` to `reg`.
 	xpcc::co::Result<void>
-	writeRegister(Register reg, uint8_t value);
+	writeRegister(void *ctx, Register reg, uint8_t value);
 
 	/// Writes `length` values to registers starting at `reg`.
 	xpcc::co::Result<void>
-	writeRegister(Register reg, uint8_t* values, size_t length);
+	writeRegister(void *ctx, Register reg, uint8_t* values, size_t length);
 
 	/// Sends command to the CC1101 chip.
 	xpcc::co::Result<void>
-	writeCommand(Command command);
+	writeCommand(void *ctx, Command command);
 
 private:
 	/// Spi Master interface the cc1101 chip is connected to
