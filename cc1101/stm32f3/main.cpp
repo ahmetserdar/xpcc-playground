@@ -109,7 +109,9 @@ MAIN_FUNCTION
 	MainThread::CC1101Config::Cs::setOutput(xpcc::Gpio::High);
 	MainThread::CC1101Config::Miso::connect(SpiSimpleMaster3::Miso);
 	GpioOutputB5::connect(SpiSimpleMaster3::Mosi);
+	GpioOutputB3::connect(SpiSimpleMaster3::Sck);
 	SpiSimpleMaster3::initialize<defaultSystemClock, 1125 * kHz1>();
+	//SpiSimpleMaster3::initialize<defaultSystemClock, 140625>();
 
 	while (1)
 	{

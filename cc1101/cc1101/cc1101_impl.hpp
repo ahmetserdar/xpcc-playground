@@ -13,6 +13,15 @@
 
 #include <xpcc/architecture/driver/delay.hpp>
 
+#if 1
+	#include <xpcc/debug/logger.hpp>
+	#undef	XPCC_LOG_LEVEL
+	#define	XPCC_LOG_LEVEL xpcc::log::DEBUG
+#else
+	#undef	XPCC_LOG_LEVEL
+	#define	XPCC_LOG_LEVEL xpcc::log::ERROR
+#endif
+
 namespace xpcc
 {
 namespace radio
@@ -32,12 +41,21 @@ CC1101<Configuration>::initialize(void *ctx)
 	::xpcc::delayMicroseconds(25 + 5);	// "at LEAST 40 us"
 	Cs::reset();
 	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low
-	Spi::startTransfer(static_cast<uint8_t>(Command::SRES));
-	CO_WAIT_UNTIL(Spi::isTransferFinished());
+	CO_CALL(Spi::writeRead(static_cast<uint8_t>(Command::SRES)));
 	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low again
-	Cs::reset();
+	Cs::set();
+
+	::xpcc::delayMicroseconds(15);
+	CO_YIELD();
 
 	// 2.) TODO: poll device id
+	Cs::reset();
+	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low
+	CO_CALL(Spi::writeRead(static_cast<uint8_t>(Register::VERSION)));
+	static uint8_t partnum = CO_CALL(Spi::writeRead(0x00));
+	Cs::set();
+	XPCC_LOG_DEBUG << XPCC_FILE_INFO << "partnum: " << partnum << xpcc::endl;
+
 
 	CO_END_RETURN(InitializeError::InvalidSomething);
 }
