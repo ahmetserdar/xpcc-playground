@@ -97,7 +97,7 @@ public:
 private:
 	/// Spi Master interface the cc1101 chip is connected to
 	/// remember to connect pins before using the CC1101 class
-	typedef typename Configuration::SpiMaster SpiMaster;
+	typedef typename Configuration::SpiMaster Spi;
 	/// Chips Select Gpio, configured as output outside of CC1101 class
 	typedef typename Configuration::Cs   Cs;
 	/// Miso Gpio, connected to Spi outside of CC1101 class

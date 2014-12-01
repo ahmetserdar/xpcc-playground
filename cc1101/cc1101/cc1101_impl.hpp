@@ -11,6 +11,8 @@
 	#error	"Don't include this file directly, use 'cc1101.hpp' instead!"
 #endif
 
+#include <xpcc/architecture/driver/delay.hpp>
+
 namespace xpcc
 {
 namespace radio
@@ -22,7 +24,21 @@ CC1101<Configuration>::initialize(void *ctx)
 {
 	CO_BEGIN(ctx);
 
-	// FIXME: implement!
+	// 1.) reset as described in the datasheet on page 51 (19.1.2 Manual Reset)
+	// FIXME: the delayMicorseconds is very ugly, but how can we fix this?
+	Cs::reset();
+	::xpcc::delayMicroseconds(15);
+	Cs::set();
+	::xpcc::delayMicroseconds(25 + 5);	// "at LEAST 40 us"
+	Cs::reset();
+	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low
+	Spi::startTransfer(static_cast<uint8_t>(Command::SRES));
+	CO_WAIT_UNTIL(Spi::isTransferFinished());
+	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low again
+	Cs::reset();
+
+	// 2.) TODO: poll device id
+
 	CO_END_RETURN(InitializeError::InvalidSomething);
 }
 
