@@ -50,6 +50,15 @@ public:
 
 		PT_BEGIN();
 
+		// try to initialize the device
+		static Radio::InitializeError e;
+		e = PT_CALL(radio.initialize(this));
+		if(e != Radio::InitializeError::None) {
+			XPCC_LOG_ERROR << XPCC_FILE_INFO;
+			XPCC_LOG_ERROR << "Error trying to initialize the cc1101: ";
+			XPCC_LOG_ERROR << Radio::enumToString(e) << xpcc::endl;
+		}
+
 		// main loop
 		while(true){
 			PT_YIELD();
@@ -68,9 +77,10 @@ public:
 	};
 
 private:
+	typedef xpcc::radio::CC1101Phy<CC1101Config> Radio;
 	xpcc::Timeout<> timer;
 	xpcc::PeriodicTimer<> blinkTimer;
-	xpcc::radio::CC1101Phy<CC1101Config> radio;
+	Radio radio;
 };
 
 MainThread mainThread;
