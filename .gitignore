@@ -10,3 +10,7 @@ build/
 .project
 .cproject
 .pydevproject
+
+# Doxygen
+html/
+latex/
