@@ -17,7 +17,7 @@ namespace xpcc
 namespace radio
 {
 
-/*
+/**
  * CC1101 Registers
  *
  * This class contains all register definitions for the CC1101
@@ -27,6 +27,9 @@ namespace radio
  * Please note: a lot of the CC11xx radios from TI have similar registers,
  * thus this class could be used to address e.g. the CC115L Transmitter
  * as well.
+ *
+ * @ingroup radio
+ * @author  eKiwi <electron.kiwi@gmail.com>
  */
 class
 CC1101Registers
@@ -34,8 +37,49 @@ CC1101Registers
 public:
 
 	enum class
-	ConfigurationRegister : uint8_t
+	TransferMode : uint8_t
 	{
+		WriteSingleByte = 0x00,
+		WriteBurst      = 0x40,
+		ReadSingleByte  = 0x80,
+		ReadBurst       = 0xc0,
+	};
+
+	enum class
+	Command : uint8_t
+	{
+		/// reset chip
+		SRES    = 0x30,
+		/// enable and calibrate frequency synthesizer
+		SFSTXON = 0x31,
+		/// turn off crystal oscillator
+		SXOFF   = 0x32,
+		/// calibrate frequency synthesizer and turn it off
+		SCAL    = 0x33,
+		/// enable RX
+		SRX     = 0x34,
+		/// in IDLE state: enable TX
+		STX     = 0x35,
+		/// exit RX/TX turn off frequency synthesizer and exit wake-on-radio mode if applicable
+		SIDLE   = 0x36,
+		/// start automatic RX polling sequence (wake-on-radio)
+		SWOR    = 0x38,
+		/// enter power down mode when CSn goes high
+		SPWD    = 0x39,
+		/// flush the RX FIFO buffer
+		SFRX    = 0x3a,
+		/// flush the TX FIFO buffer
+		SFTX    = 0x3b,
+		/// reset real time clock to Event1 value
+		SWORRST = 0x3c,
+		/// no operation, may be used to access to the chip status byte
+		SNOP    = 0x3d,
+	};
+
+	enum class
+	Register : uint8_t
+	{
+		// Configuration Registers
 		IOCFG2   = 0x00,	///< GDO2 output pin configuration
 		IOCFG1   = 0x01,	///< GDO1 output pin configuration
 		IOCFG0   = 0x02,	///< GDO0 output pin configuration
@@ -83,12 +127,7 @@ public:
 		TEST2    = 0x2c,	///< various test settings
 		TEST1    = 0x2d,	///< various test settings
 		TEST0    = 0x2e,	///< various test settings
-	};
-
-
-	enum class
-	StatusRegister : uint8_t
-	{
+		// Status Register
 		PARTNUM        = 0x30,	///< part number for cc1101
 		VERSION        = 0x31,	///< current version number
 		FREQEST        = 0x32,	///< frequency offset estimate
