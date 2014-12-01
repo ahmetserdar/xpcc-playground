@@ -127,21 +127,21 @@ public:
 		TEST2    = 0x2c,	///< various test settings
 		TEST1    = 0x2d,	///< various test settings
 		TEST0    = 0x2e,	///< various test settings
-		// Status Register
-		PARTNUM        = 0x30,	///< part number for cc1101
-		VERSION        = 0x31,	///< current version number
-		FREQEST        = 0x32,	///< frequency offset estimate
-		LQI            = 0x33,	///< demodulator estimate for link quality
-		RSSI           = 0x34,	///< received signal strength indication
-		MARCSTATE      = 0x35,	///< control state machine
-		WORTIME1       = 0x36,	///< high byte of WOR timer
-		WORTIME0       = 0x37,	///< low byte of WOR timer
-		PKTSTATUS      = 0x38,	///< current GDOx status and packet status
-		VCO_VC_DAC     = 0x39,	///< current settings from PLL calibration module
-		TXBYTES        = 0x3a,	///< underflow and number of bytes in the TX FIFO
-		RXBYTES        = 0x3b,	///< overflow and number of bytes in the RX FIFO
-		RCCTRL1_STATUS = 0x3c,	///< last RC oscillator calibration result
-		RCCTRL0_STATUS = 0x3d,	///< last RC oscillator calibration result
+		// Status Register, read only
+		PARTNUM        = 0x30 | 0xc0,	///< part number for cc1101
+		VERSION        = 0x31 | 0xc0,	///< current version number
+		FREQEST        = 0x32 | 0xc0,	///< frequency offset estimate
+		LQI            = 0x33 | 0xc0,	///< demodulator estimate for link quality
+		RSSI           = 0x34 | 0xc0,	///< received signal strength indication
+		MARCSTATE      = 0x35 | 0xc0,	///< control state machine
+		WORTIME1       = 0x36 | 0xc0,	///< high byte of WOR timer
+		WORTIME0       = 0x37 | 0xc0,	///< low byte of WOR timer
+		PKTSTATUS      = 0x38 | 0xc0,	///< current GDOx status and packet status
+		VCO_VC_DAC     = 0x39 | 0xc0,	///< current settings from PLL calibration module
+		TXBYTES        = 0x3a | 0xc0,	///< underflow and number of bytes in the TX FIFO
+		RXBYTES        = 0x3b | 0xc0,	///< overflow and number of bytes in the RX FIFO
+		RCCTRL1_STATUS = 0x3c | 0xc0,	///< last RC oscillator calibration result
+		RCCTRL0_STATUS = 0x3d | 0xc0,	///< last RC oscillator calibration result
 	};
 
 	enum class
