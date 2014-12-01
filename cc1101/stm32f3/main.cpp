@@ -27,13 +27,60 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #include <xpcc_project_info.hpp>
 
 
+#include <xpcc/processing/timeout.hpp>
+#include <xpcc/processing/periodic_timer.hpp>
+#include <xpcc/processing/protothread.hpp>
+#include "../cc1101/phy.hpp"
 
-#include "../cc1101/registers.hpp"
+
+class MainThread : public xpcc::pt::Protothread
+{
+public:
+	MainThread() : blinkTimer(500)
+	{
+	}
+
+	/// Needs to be called as often as possible.
+	bool
+	run()
+	{
+		if(blinkTimer.isExpired()) {
+			LedSouth::toggle();
+		}
+
+		PT_BEGIN();
+
+		// main loop
+		while(true){
+			PT_YIELD();
+		}
+
+		PT_END();
+	}
+
+public:
+	struct CC1101Config {
+		typedef SpiSimpleMaster3 SpiMaster;
+		typedef GpioOutputA15    Cs;
+		typedef GpioInputB4      Miso;
+		typedef GpioD6           Gdo0;
+		typedef GpioD4           Gdo2;
+	};
+
+private:
+	xpcc::Timeout<> timer;
+	xpcc::PeriodicTimer<> blinkTimer;
+	xpcc::radio::CC1101Phy<CC1101Config> radio;
+};
+
+MainThread mainThread;
+
 
 // ----------------------------------------------------------------------------
 MAIN_FUNCTION
 {
 	defaultSystemClock::enable();
+	xpcc::cortex::SysTickTimer::enable();
 
 	LedNorth::setOutput(xpcc::Gpio::Low);
 	LedSouth::setOutput(xpcc::Gpio::Low);
@@ -48,10 +95,15 @@ MAIN_FUNCTION
 	XPCC_LOG_INFO << "[git] " XPCC_GIT_SHA_ABBR " " XPCC_GIT_SUBJECT << xpcc::endl;
 	XPCC_LOG_INFO << "[git] " XPCC_GIT_AUTHOR "<" XPCC_GIT_AUTHOR_EMAIL ">" << xpcc::endl;
 
+	// Initialize Spi
+	MainThread::CC1101Config::Cs::setOutput();
+	MainThread::CC1101Config::Miso::connect(SpiSimpleMaster3::Miso);
+	GpioOutputB5::connect(SpiSimpleMaster3::Mosi);
+	SpiSimpleMaster3::initialize<defaultSystemClock, 1125 * kHz1>();
+
 	while (1)
 	{
-		LedSouth::toggle();
-		xpcc::delayMilliseconds(500);
+		mainThread.run();
 	}
 
 	return 0;
