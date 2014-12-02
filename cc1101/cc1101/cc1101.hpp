@@ -37,6 +37,15 @@ public:
 	/// Translates the error code to its string representation.
 	static const char*
 	enumToString(InitializeError e);
+
+	/// Identifies the Gdo pin by it's register address.
+	enum class
+	Gdo : uint8_t
+	{
+		Gdo2 = Register::IOCFG2,
+		Gdo1 = Register::IOCFG1,
+		Gdo0 = Register::IOCFG0,
+	};
 };
 
 
@@ -67,181 +76,6 @@ template<typename Configuration>
 class
 CC1101 : protected xpcc::co::NestedCoroutine<2>, public CC1101Base
 {
-public:
-	/// Identifies the Gdo pin by it's register address.
-	enum class
-	Gdo : uint8_t
-	{
-		Gdo2 = Register::IOCFG2,
-		Gdo1 = Register::IOCFG1,
-		Gdo0 = Register::IOCFG0,
-	};
-
-	/// Indicates whether the ouput should be inverted or not.
-	enum class
-	GdoInverted : uint8_t
-	{
-		No  = 0,
-		Yes = IOCFG2::INV,
-	};
-
-	/// GDOx Signal Selection
-	///
-	/// See CC1101 datasheet page 62, table 41 for more information
-	enum class
-	GdoSignalSelection : uint8_t
-	{
-		/// Indicates whether Rx Fifo is filled at/above (`1`)
-		/// or below (`0`) Fifo threshold.
-		RxFifoThreshold     = 0x00,
-		/// Set when Rx Fifo is filled at/above threshold or end of packet,
-		/// reset when Rx Fifo is empty.
-		RxFifoNotEmpty      = 0x01,
-		/// Indicates whether Tx Fifo is filled at/above (`1`)
-		/// or below (`0`) Fifo threshold.
-		TxFifoThreshold     = 0x02,
-		/// Set when Tx Fifo is full, reset when Tx Fifo is full below
-		/// threshold.
-		TxFifoFull          = 0x03,
-		/// Set when Rx Fifo has overflown, reset when the Fifo has been flushed.
-		RxFifoOverflow      = 0x04,
-		/// Set when Rx Fifo has overflown, reset when the Fifo has been flushed.
-		TxFifoUnderflow     = 0x05,
-		/// Set when sync word has been sent / received, reset at the end of packet.
-		SyncWord            = 0x06,
-		/// Set when a packet with correct CRC has been received,
-		/// reset when byte is read from Rx Fifo.
-		PacketReceived      = 0x07,
-		/// Set when preamble quality has been reached, reset when reentering
-		/// Rx state or when the pramble quality goes below the threshold.
-		PreambleQuality     = 0x08,
-		/// Clear channel assessment. Set when RSSI level is below threshold.
-		ClearChannel        = 0x09,
-		/// Pll is in lock if the output is set.
-		PllLock             = 0x0a,
-		/// Serial clock, synchronous to the data in synchronous serial mode.
-		SerialClock         = 0x0b,
-		/// Serial synchronous data output.
-		SynchronousDataOut  = 0x0c,
-		/// Serial data output used in asynchronous serial mode.
-		AsynchronousDataOut = 0x0d,
-		/// Set if RSSI level is above threshold, reset when entering Idle mode.
-		CarrierSense        = 0x0e,
-		/// Set if the last CRC matched, reset when entering/restarting Rx mode.
-		CrcOk               = 0x0f,
-		/// Can be used together with RxSymbolTick for alternative serial Rx output.
-		RxHardData1         = 0x16,
-		/// Can be used together with RxSymbolTick for alternative serial Rx output.
-		RxHardData0         = 0x17,
-		/// Will have the same signal in Sleep and Tx states.
-		/// Do not use to control and external PA.
-		PaPd                = 0x1b,
-		/// Will have the same signal in Sleep and Tx states.
-		/// Do not use to control and external LNA.
-		LnaPd               = 0x1c,
-		/// Can be used together with RxHardData for alternative serial Rx output.
-		RxSymbolTick        = 0x1d,
-		/// WorEvent0 output
-		WorEvent0           = 0x24,
-		/// WorEvent1 output
-		WorEvent1           = 0x25,
-		/// Clk256 output
-		Clk256              = 0x26,
-		/// Clk32k output
-		Clk32k              = 0x27,
-		/// ChipReady output
-		ChipReady           = 0x29,
-		/// XOscialltorStable output
-		XOscialltorStable   = 0x2b,
-		/// High Impedance
-		HighImpedance       = 0x2e,
-		/// Can be used to control an external LNA/PA or Rx/Tx switch.
-		Hardware0           = 0x2f,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver1       = 0x30,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver3Over2  = 0x31,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver2       = 0x32,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver3       = 0x33,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver4       = 0x34,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver6       = 0x35,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver8       = 0x36,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver12      = 0x37,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver16      = 0x38,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver24      = 0x39,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver32      = 0x3a,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver48      = 0x3b,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver64      = 0x3c,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver96      = 0x3d,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver128     = 0x3e,
-		/// XOscillatorClock output. Can only be used on one pin!
-		XOscillatorClockOver192     = 0x3f,
-	};
-
-	/// Adc Retention setting in the Fifo threshold register
-	///
-	/// It is not fully explained what this acutally does, but the
-	/// datasheet says to set this to 1 if you want to have a Rx filter
-	/// bandwidth below 325kHz at time of wake-up.
-	enum class
-	AdcRetention
-	{
-		RxFilterAbove325kHz = 0,
-		RxFilterBelow325kHz = FIFOTHR::ADC_RETENTION,
-	};
-
-	/// Attenuation at the receiver.
-	///
-	/// This can be used for close in reception (see DN010).
-	enum class
-	RxAttenuation
-	{
-		dB0  = 0,
-		dB6  = FIFOTHR::CLOSE_IN_RX_0,
-		dB12 = FIFOTHR::CLOSE_IN_RX_1,
-		dB18 = FIFOTHR::CLOSE_IN_RX_1 | FIFOTHR::CLOSE_IN_RX_0,
-	};
-
-	/// Tx and Rx Fifo threshold, exceeded when the number of bytes is equal or higher.
-	enum class
-	FifoThreshold
-	{
-		Tx61Rx4  = 0,
-		Tx57Rx8  = FIFOTHR::FIFO_THR_0,
-		Tx53Rx12 = FIFOTHR::FIFO_THR_1,
-		Tx49Rx16 = FIFOTHR::FIFO_THR_1 | FIFOTHR::FIFO_THR_0,
-		Tx45Rx20 = FIFOTHR::FIFO_THR_2,
-		Tx41Rx24 = FIFOTHR::FIFO_THR_2 | FIFOTHR::FIFO_THR_0,
-		Tx37Rx28 = FIFOTHR::FIFO_THR_2 | FIFOTHR::FIFO_THR_1,
-		Tx33Rx32 = FIFOTHR::FIFO_THR_2 | FIFOTHR::FIFO_THR_1 |
-		           FIFOTHR::FIFO_THR_0,
-		Tx29Rx36 = FIFOTHR::FIFO_THR_3,
-		Tx25Rx40 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_0,
-		Tx21Rx44 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_1,
-		Tx17Rx48 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_1 |
-		           FIFOTHR::FIFO_THR_0,
-		Tx13Rx52 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2,
-		Tx9Rx56  = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2 |
-		           FIFOTHR::FIFO_THR_0,
-		Tx5Rx60  = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2 |
-		           FIFOTHR::FIFO_THR_1,
-		Tx1Rx64  = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2 |
-		           FIFOTHR::FIFO_THR_1 | FIFOTHR::FIFO_THR_0,
-	};
-
 public:
 	/// Resets the cc1101 chip and checks PARTNUM and VERSION registers for expected values.
 	xpcc::co::Result<InitializeError>

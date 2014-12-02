@@ -161,6 +161,173 @@ public:
 		RCCTRL0_STATUS = 0x3d | 0xc0,	///< last RC oscillator calibration result
 	};
 
+	/// Indicates whether the ouput should be inverted or not.
+	///
+	/// Part of the IOCFG[0:2] registers (datasheet page 71)
+	enum class
+	GdoInverted : uint8_t
+	{
+		No  = 0,
+		Yes = Bit6,
+	};
+
+	/// GDOx Signal Selection
+	///
+	/// See CC1101 datasheet page 62, table 41 for more information
+	/// Part of the IOCFG[0:2] registers (datasheet page 71)
+	enum class
+	GdoSignalSelection : uint8_t
+	{
+		/// Indicates whether Rx Fifo is filled at/above (`1`)
+		/// or below (`0`) Fifo threshold.
+		RxFifoThreshold     = 0x00,
+		/// Set when Rx Fifo is filled at/above threshold or end of packet,
+		/// reset when Rx Fifo is empty.
+		RxFifoNotEmpty      = 0x01,
+		/// Indicates whether Tx Fifo is filled at/above (`1`)
+		/// or below (`0`) Fifo threshold.
+		TxFifoThreshold     = 0x02,
+		/// Set when Tx Fifo is full, reset when Tx Fifo is full below
+		/// threshold.
+		TxFifoFull          = 0x03,
+		/// Set when Rx Fifo has overflown, reset when the Fifo has been flushed.
+		RxFifoOverflow      = 0x04,
+		/// Set when Rx Fifo has overflown, reset when the Fifo has been flushed.
+		TxFifoUnderflow     = 0x05,
+		/// Set when sync word has been sent / received, reset at the end of packet.
+		SyncWord            = 0x06,
+		/// Set when a packet with correct CRC has been received,
+		/// reset when byte is read from Rx Fifo.
+		PacketReceived      = 0x07,
+		/// Set when preamble quality has been reached, reset when reentering
+		/// Rx state or when the pramble quality goes below the threshold.
+		PreambleQuality     = 0x08,
+		/// Clear channel assessment. Set when RSSI level is below threshold.
+		ClearChannel        = 0x09,
+		/// Pll is in lock if the output is set.
+		PllLock             = 0x0a,
+		/// Serial clock, synchronous to the data in synchronous serial mode.
+		SerialClock         = 0x0b,
+		/// Serial synchronous data output.
+		SynchronousDataOut  = 0x0c,
+		/// Serial data output used in asynchronous serial mode.
+		AsynchronousDataOut = 0x0d,
+		/// Set if RSSI level is above threshold, reset when entering Idle mode.
+		CarrierSense        = 0x0e,
+		/// Set if the last CRC matched, reset when entering/restarting Rx mode.
+		CrcOk               = 0x0f,
+		/// Can be used together with RxSymbolTick for alternative serial Rx output.
+		RxHardData1         = 0x16,
+		/// Can be used together with RxSymbolTick for alternative serial Rx output.
+		RxHardData0         = 0x17,
+		/// Will have the same signal in Sleep and Tx states.
+		/// Do not use to control and external PA.
+		PaPd                = 0x1b,
+		/// Will have the same signal in Sleep and Tx states.
+		/// Do not use to control and external LNA.
+		LnaPd               = 0x1c,
+		/// Can be used together with RxHardData for alternative serial Rx output.
+		RxSymbolTick        = 0x1d,
+		/// WorEvent0 output
+		WorEvent0           = 0x24,
+		/// WorEvent1 output
+		WorEvent1           = 0x25,
+		/// Clk256 output
+		Clk256              = 0x26,
+		/// Clk32k output
+		Clk32k              = 0x27,
+		/// ChipReady output
+		ChipReady           = 0x29,
+		/// XOscialltorStable output
+		XOscialltorStable   = 0x2b,
+		/// High Impedance
+		HighImpedance       = 0x2e,
+		/// Can be used to control an external LNA/PA or Rx/Tx switch.
+		Hardware0           = 0x2f,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver1       = 0x30,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver3Over2  = 0x31,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver2       = 0x32,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver3       = 0x33,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver4       = 0x34,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver6       = 0x35,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver8       = 0x36,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver12      = 0x37,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver16      = 0x38,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver24      = 0x39,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver32      = 0x3a,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver48      = 0x3b,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver64      = 0x3c,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver96      = 0x3d,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver128     = 0x3e,
+		/// XOscillatorClock output. Can only be used on one pin!
+		XOscillatorClockOver192     = 0x3f,
+	};
+
+	/// Adc Retention setting in the Fifo threshold register
+	///
+	/// It is not fully explained what this acutally does, but the
+	/// datasheet says to set this to 1 if you want to have a Rx filter
+	/// bandwidth below 325kHz at time of wake-up.
+	/// Part of the 0x03 FIFOTHR register (datasheet page 72)
+	enum class
+	AdcRetention
+	{
+		RxFilterAbove325kHz = 0,
+		RxFilterBelow325kHz = Bit6,
+	};
+
+	/// Attenuation at the receiver.
+	///
+	/// This can be used for close in reception (see DN010).
+	/// Part of the 0x03 FIFOTHR register (datasheet page 72)
+	enum class
+	RxAttenuation
+	{
+		dB0  = 0,
+		dB6  = Bit4,
+		dB12 = Bit5,
+		dB18 = Bit5 | Bit4,
+	};
+
+	/// Tx and Rx Fifo threshold, exceeded when the number of bytes is equal or higher.
+	///
+	/// Part of the 0x03 FIFOTHR register (datasheet page 72)
+	enum class
+	FifoThreshold
+	{
+		Tx61Rx4  = 0x00,
+		Tx57Rx8  = 0x01,
+		Tx53Rx12 = 0x02,
+		Tx49Rx16 = 0x03,
+		Tx45Rx20 = 0x04,
+		Tx41Rx24 = 0x05,
+		Tx37Rx28 = 0x06,
+		Tx33Rx32 = 0x07,
+		Tx29Rx36 = 0x08,
+		Tx25Rx40 = 0x09,
+		Tx21Rx44 = 0x0a,
+		Tx17Rx48 = 0x0b,
+		Tx13Rx52 = 0x0c,
+		Tx9Rx56  = 0x0d,
+		Tx5Rx60  = 0x0e,
+		Tx1Rx64  = 0x0f,
+	};
+
 	enum class
 	IOCFG2 : uint8_t
 	{
