@@ -20,8 +20,10 @@ CC1101Base::enumToString(CC1101Base::InitializeError e)
 	switch(e) {
 	case InitializeError::None:
 		return "None";
-	case InitializeError::InvalidSomething:
-		return "InvalidSomething";
+	case InitializeError::PartnumNotZero:
+		return "PartnumNotZero";
+	case InitializeError::VersionIsNot20AsExpected:
+		return "VersionIsNot20AsExpected";
 	default:
 		return "Unknown";
 	}

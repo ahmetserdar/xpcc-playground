@@ -45,19 +45,17 @@ CC1101<Configuration>::initialize(void *ctx)
 	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low again
 	Cs::set();
 
-	::xpcc::delayMicroseconds(15);
-	CO_YIELD();
+	// 2.) poll PARTNUM which should be zero
+	if(CO_CALL(readRegister(ctx, Register::PARTNUM)) != 0) {
+		CO_RETURN(InitializeError::PartnumNotZero);
+	}
 
-	// 2.) TODO: poll device id
-	Cs::reset();
-	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low
-	CO_CALL(Spi::writeRead(static_cast<uint8_t>(Register::VERSION)));
-	static uint8_t partnum = CO_CALL(Spi::writeRead(0x00));
-	Cs::set();
-	XPCC_LOG_DEBUG << XPCC_FILE_INFO << "partnum: " << partnum << xpcc::endl;
+	// 3.) poll VERSION which is expected to be 20 (but could be different)
+	if(CO_CALL(readRegister(ctx, Register::VERSION)) != 20) {
+		CO_RETURN(InitializeError::VersionIsNot20AsExpected);
+	}
 
-
-	CO_END_RETURN(InitializeError::InvalidSomething);
+	CO_END_RETURN(InitializeError::None);
 }
 
 
@@ -65,11 +63,20 @@ template<typename Configuration>
 xpcc::co::Result<uint8_t>
 CC1101<Configuration>::readRegister(void *ctx, CC1101Base::Register reg)
 {
+	static uint8_t value;
 	CO_BEGIN(ctx);
-
-	// FIXME: implement!
-
-	CO_END_RETURN(0xff);
+	Cs::reset();
+	// wait for Miso to go low
+	// FIXME: probably miso is always low if we are not in sleep mode
+	//        thus maybe it might be more performant to busy wait here
+	//        since in most cases waiting won't be necessary at all.
+	CO_WAIT_UNTIL(!Miso::read());
+	CO_CALL(Spi::writeRead(
+		static_cast<uint8_t>(reg) |
+		static_cast<uint8_t>(TransferMode::ReadSingleByte)));
+	value = CO_CALL(Spi::writeRead(0x00));
+	Cs::set();
+	CO_END_RETURN(value);
 }
 
 
@@ -89,8 +96,15 @@ xpcc::co::Result<void>
 CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_t value)
 {
 	CO_BEGIN(ctx);
-
-	// FIXME: implement!
+	Cs::reset();
+	// wait for Miso to go low
+	// FIXME: see `readRegister`
+	CO_WAIT_UNTIL(!Miso::read());
+	CO_CALL(Spi::writeRead(
+		static_cast<uint8_t>(reg) |
+		static_cast<uint8_t>(TransferMode::WriteSingleByte)));
+	CO_CALL(Spi::writeRead(value));
+	Cs::set();
 	CO_END();
 }
 

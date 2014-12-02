@@ -57,6 +57,8 @@ public:
 			XPCC_LOG_ERROR << XPCC_FILE_INFO;
 			XPCC_LOG_ERROR << "Error trying to initialize the cc1101: ";
 			XPCC_LOG_ERROR << Radio::enumToString(e) << xpcc::endl;
+		} else {
+			XPCC_LOG_DEBUG << XPCC_FILE_INFO << "Initialized cc1101." << xpcc::endl;
 		}
 
 		// main loop

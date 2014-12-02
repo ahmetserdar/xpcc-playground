@@ -30,7 +30,8 @@ public:
 	InitializeError
 	{
 		None,
-		InvalidSomething,
+		PartnumNotZero,
+		VersionIsNot20AsExpected,
 	};
 
 	/// Translates the error code to its string representation.
@@ -64,7 +65,7 @@ public:
  */
 template<typename Configuration>
 class
-CC1101 : protected xpcc::co::NestedCoroutine<1>, public CC1101Base
+CC1101 : protected xpcc::co::NestedCoroutine<2>, public CC1101Base
 {
 public:
 	///
