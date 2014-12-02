@@ -60,6 +60,11 @@ public:
 		} else {
 			XPCC_LOG_DEBUG << XPCC_FILE_INFO << "Initialized cc1101." << xpcc::endl;
 		}
+		// Configure Gdo0 as high impedance
+		PT_CALL(radio.configureGdo(this,
+			Radio::Gdo::Gdo0,
+			Radio::GdoInverted::No,
+			Radio::GdoSignalSelection::HighImpedance));
 
 		// main loop
 		while(true){
@@ -74,8 +79,8 @@ public:
 		typedef SpiSimpleMaster3 SpiMaster;
 		typedef GpioOutputA15    Cs;
 		typedef GpioInputB4      Miso;
-		typedef GpioD6           Gdo0;
-		typedef GpioD4           Gdo2;
+		typedef GpioInputD6      Gdo0;
+		typedef GpioInputD4      Gdo2;
 	};
 
 private:
@@ -114,6 +119,10 @@ MAIN_FUNCTION
 	GpioOutputB3::connect(SpiSimpleMaster3::Sck);
 	SpiSimpleMaster3::initialize<defaultSystemClock, 1125 * kHz1>();
 	//SpiSimpleMaster3::initialize<defaultSystemClock, 140625>();
+
+	// Initialize Gdos
+	MainThread::CC1101Config::Gdo0::setInput();
+	MainThread::CC1101Config::Gdo2::setInput();
 
 	while (1)
 	{
