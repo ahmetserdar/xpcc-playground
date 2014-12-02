@@ -58,6 +58,16 @@ CC1101<Configuration>::initialize(void *ctx)
 	CO_END_RETURN(InitializeError::None);
 }
 
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureGdo(void *ctx,
+	Gdo gdo, GdoInverted inverted, GdoSignalSelection sel)
+{
+	return writeRegister(ctx,
+		static_cast<Register>(gdo),
+		static_cast<uint8_t>(inverted) | static_cast<uint8_t>(sel));
+}
+
 
 template<typename Configuration>
 xpcc::co::Result<uint8_t>
@@ -125,8 +135,12 @@ xpcc::co::Result<void>
 CC1101<Configuration>::writeCommand(void *ctx, CC1101Base::Command command)
 {
 	CO_BEGIN(ctx);
-
-	// FIXME: implement!
+	Cs::reset();
+	// wait for Miso to go low
+	// FIXME: see `readRegister`
+	CO_WAIT_UNTIL(!Miso::read());
+	CO_CALL(Spi::writeRead(static_cast<uint8_t>(command)));
+	Cs::set();
 	CO_END();
 }
 
