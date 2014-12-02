@@ -59,15 +59,15 @@ public:
  * as well.
  *
  * ### Example Configuration
- *
- *    struct CC1101Config {
- *        typedef stm32::SpiSimpleMaster3 SpiMaster;
- *        typedef stm32::GpioOutputA15    Cs;
- *        typedef stm32::GpioInputB4      Miso;
- *        typedef stm32::GpioInputD6      Gdo0;
- *        typedef stm32::GpioInputD4      Gdo2;
- *    };
- *
+ * ~~~~~~~~~~~~~{.cpp}
+ * struct CC1101Config {
+ *     typedef stm32::SpiSimpleMaster3 SpiMaster;
+ *     typedef stm32::GpioOutputA15    Cs;
+ *     typedef stm32::GpioInputB4      Miso;
+ *     typedef stm32::GpioInputD6      Gdo0;
+ *     typedef stm32::GpioInputD4      Gdo2;
+ * };
+ * ~~~~~~~~~~~~~
  *
  * @ingroup radio
  * @author  eKiwi <electron.kiwi@gmail.com>
@@ -93,15 +93,81 @@ public:
 	/// this could be added to this method.
 	///
 	/// For more information on the Gdo pins see CC1101 datasheet page 61.
-	xpcc::co::Result<void>
+	inline xpcc::co::Result<void>
 	configureGdo(void *ctx, Gdo gdo, GdoSignalSelection sel,
 		GdoInverted inverted = GdoInverted::No);
 
 	/// Writes configuration to the Rx/Tx Fifo threshold register
-	xpcc::co::Result<void>
+	inline xpcc::co::Result<void>
 	configureFifoThreshold(void *ctx, FifoThreshold threshold,
 		AdcRetention retention,
 		RxAttenuation attenuation = RxAttenuation::dB0);
+
+	/// Configures the 16-bit sync word.
+	inline xpcc::co::Result<void>
+	configureSyncWord(void *ctx, uint16_t sync);
+
+	/// Configures the packet length.
+	///
+	/// If variable packet length mode is used, this specifies the maximum
+	/// packet length allowed. `length` must be differnt from 0.
+	inline xpcc::co::Result<void>
+	configurePacketLength(void *ctx, uint8_t length);
+
+	/// Configures the PKTCTRL1 register
+	///
+	/// @param preambleQualityThreshold
+	///        The preamble quality estimate increases an internal counter by
+	///        one each time a bit that is different from the previous bit is
+	///        received and decreases the counter by 8 each time the same bit
+	///        is received. A threshold of 4*`preambleQualityThreshold` is
+	///        used to gate sync word detection. When `preambleQualityThreshold`
+	///        is `0`, a sync word is always accepted.
+	inline xpcc::co::Result<void>
+	configurePacketAutomationControl1(void *ctx,
+		uint8_t preambleQualityThreshold,
+		CrcAutoFlush auto_flush,
+		AppendStatus append_status,
+		AddressCheck address_check);
+
+	/// Configures the PKTCTRL0 register
+	inline xpcc::co::Result<void>
+	configurePacketAutomationControl0(void *ctx,
+		DataWhitening data_whitening,
+		PacketFormat packet_format,
+		CrcCalculation crc,
+		PacketLengthConfig packet_length_config);
+
+	/// Configures the 8 bit device address
+	///
+	/// 0x00 and 0xff can be used for broadcasts, see #AddressCheck.
+	inline xpcc::co::Result<void>
+	configureAddress(void *ctx, uint8_t address);
+
+	/// Configures the channel number
+	///
+	/// @param channel will be multiplied by the channel spacing and added to
+	///        the base frequency.
+	inline xpcc::co::Result<void>
+	configureChannelNumber(void *ctx, uint8_t channel);
+
+	/// Configures the IF frequency used in Rx mode.
+	///
+	/// TODO: find out what this exactly does.
+	inline xpcc::co::Result<void>
+	configureIfFrequency(void *ctx, uint8_t if_freq);
+
+	/// Configures the frequency offset
+	///
+	/// TODO: find out what this exactly does.
+	inline xpcc::co::Result<void>
+	configureFrequencyOffset(void *ctx, int8_t freq_off);
+
+	/// Configures the base frequency
+	///
+	/// TODO: see how we can make this a little bit more readable
+	inline xpcc::co::Result<void>
+	configureBaseFrequency(void *ctx, uint32_t base_freq);
 
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>

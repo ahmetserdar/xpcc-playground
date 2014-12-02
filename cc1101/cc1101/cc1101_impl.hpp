@@ -63,9 +63,8 @@ xpcc::co::Result<void>
 CC1101<Configuration>::configureGdo(void *ctx,
 	Gdo gdo, GdoSignalSelection sel, GdoInverted inverted)
 {
-	return writeRegister(ctx,
-		static_cast<Register>(gdo),
-		static_cast<uint8_t>(inverted) | static_cast<uint8_t>(sel));
+	uint8_t d = static_cast<uint8_t>(inverted) | static_cast<uint8_t>(sel);
+	return writeRegister(ctx, static_cast<Register>(gdo), d);
 }
 
 template<typename Configuration>
@@ -73,10 +72,94 @@ xpcc::co::Result<void>
 CC1101<Configuration>::configureFifoThreshold(void *ctx,
 	FifoThreshold threshold, AdcRetention retention, RxAttenuation attenuation)
 {
-	return writeRegister(ctx, Register::FIFOTHR,
-		static_cast<uint8_t>(threshold) |
-		static_cast<uint8_t>(retention) |
-		static_cast<uint8_t>(attenuation));
+	uint8_t d = static_cast<uint8_t>(threshold) |
+	            static_cast<uint8_t>(retention) |
+	            static_cast<uint8_t>(attenuation);
+	return writeRegister(ctx, Register::FIFOTHR, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureSyncWord(void *ctx, uint16_t sync)
+{
+	CO_BEGIN(ctx);
+	CO_CALL(writeRegister(ctx, Register::SYNC1, static_cast<uint8_t>(sync >> 8)));
+	CO_CALL(writeRegister(ctx, Register::SYNC0, static_cast<uint8_t>(sync & 0xff)));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configurePacketLength(void *ctx, uint8_t length)
+{
+	return writeRegister(ctx, Register::PKTLEN, length);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configurePacketAutomationControl1(void *ctx,
+	uint8_t preambleQualityThreshold, CrcAutoFlush auto_flush,
+	AppendStatus append_status, AddressCheck address_check)
+{
+	uint8_t d = ((preambleQualityThreshold & 0x7) << 5) |
+	            static_cast<uint8_t>(auto_flush) |
+	            static_cast<uint8_t>(append_status) |
+	            static_cast<uint8_t>(address_check);
+	return writeRegister(ctx, Register::PKTCTRL1, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configurePacketAutomationControl0(void *ctx,
+	DataWhitening data_whitening, PacketFormat packet_format,
+	CrcCalculation crc, PacketLengthConfig packet_length_config)
+{
+	uint8_t d = static_cast<uint8_t>(data_whitening) |
+	            static_cast<uint8_t>(packet_format) |
+	            static_cast<uint8_t>(crc) |
+	            static_cast<uint8_t>(packet_length_config);
+	return writeRegister(ctx, Register::PKTCTRL0, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureAddress(void *ctx, uint8_t address)
+{
+	return writeRegister(ctx, Register::ADDR, address);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureChannelNumber(void *ctx, uint8_t channel)
+{
+	return writeRegister(ctx, Register::CHANNR, channel);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureIfFrequency(void *ctx, uint8_t if_freq)
+{
+	return writeRegister(ctx, Register::FSCTRL1, (if_freq & 0x1f));
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureFrequencyOffset(void *ctx, int8_t freq_off)
+{
+	return writeRegister(ctx, Register::FSCTRL0, freq_off);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureBaseFrequency(void *ctx, uint32_t base_freq)
+{
+	static uint32_t v;
+	CO_BEGIN(ctx);
+	v = (base_freq & 0x3fffff);	// TODO: actually calculate value from frequency
+	CO_CALL(writeRegister(ctx, Register::FREQ2, static_cast<uint8_t>((v >> 16) & 0x3f)));
+	CO_CALL(writeRegister(ctx, Register::FREQ1, static_cast<uint8_t>((v >>  8) & 0xff)));
+	CO_CALL(writeRegister(ctx, Register::FREQ0, static_cast<uint8_t>((v >>  0) & 0xff)));
+	CO_END();
 }
 
 template<typename Configuration>

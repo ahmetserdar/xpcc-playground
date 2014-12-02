@@ -328,6 +328,84 @@ public:
 		Tx1Rx64  = 0x0f,
 	};
 
+	/// Enable automatic flush of Rx Fifo when CRC is not OK.
+	///
+	/// This requires that only one packet is in the Rx Fifo and that the
+	/// packet lentgh is limited to the Rx Fifo size.
+	/// Part of the 0x07 PKTCTRL1 register (datasheet page 73)
+	enum class
+	CrcAutoFlush
+	{
+		Disabled = 0,
+		Enabled  = Bit3,
+	};
+
+	/// Append status bytes containing RSSI, LQI and CRC OK to payload
+	///
+	/// Part of the 0x07 PKTCTRL1 register (datasheet page 73)
+	enum class
+	AppendStatus
+	{
+		Disabled = 0,
+		Enabled  = Bit2,
+	};
+
+	/// Address Check
+	///
+	/// Part of the 0x07 PKTCTRL1 register (datasheet page 73)
+	enum class
+	AddressCheck
+	{
+		None             = 0,			///< No address check.
+		NoBradcast       = Bit0,		///< Only check for this radio's address.
+		Broadcast00      = Bit1,		///< Also listen to broadcast address `0x00`.
+		Broadcast00AndFF = Bit1 | Bit0,	///< Also listen to broadcast address `0x00` and `0xff`.
+	};
+
+	/// Turn data whitening on/off.
+	///
+	/// For more information on data whitening, consult the datasheet on page 37.
+	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
+	enum class
+	DataWhitening
+	{
+		Disabled = 0,
+		Enabled  = Bit6,
+	};
+
+	/// Rx/Tx Packet Format
+	///
+	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
+	enum class
+	PacketFormat
+	{
+		Normal             = 0,				///< use Fifos for Rx and Tx
+		SynchronousSerial  = Bit4,			///< data in on Gdo0, data out on Gdox
+		RandomTx           = Bit5,			///< random data using PN9 generator
+		AsynchronousSerial = Bit5 | Bit4,	///< data in on Gdo0, data out on Gdox
+	};
+
+	/// Crc Calculation
+	///
+	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
+	enum class
+	CrcCalculation
+	{
+		Disabled = 0,
+		Enabled  = Bit2,
+	};
+
+	/// Packet Length Config
+	///
+	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
+	enum class
+	PacketLengthConfig
+	{
+		Fixed    = 0,		///< length configured in PKTLEN register
+		Variable = Bit0,	///< packet length configure by the first byte after sync word
+		Infinite = Bit1,	///< infinite packet length mode
+	};
+
 	enum class
 	IOCFG2 : uint8_t
 	{

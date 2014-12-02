@@ -63,8 +63,27 @@ public:
 		// Configure Gdo0 as high impedance
 		PT_CALL(radio.configureGdo(this,
 			Radio::Gdo::Gdo0,
-			Radio::GdoInverted::No,
-			Radio::GdoSignalSelection::HighImpedance));
+			Radio::GdoSignalSelection::HighImpedance));		// 0x2e
+		PT_CALL(radio.configureFifoThreshold(this,
+			Radio::FifoThreshold::Tx33Rx32,
+			Radio::AdcRetention::RxFilterAbove325kHz));		// 0x07
+		PT_CALL(radio.configureSyncWord(this, 0xb547));		// 0xb5, 0x47
+		PT_CALL(radio.configurePacketLength(this, 0x3d));	// 0x3d
+		PT_CALL(radio.configurePacketAutomationControl1(this,
+			0, Radio::CrcAutoFlush::Disabled,
+			Radio::AppendStatus::Enabled,
+			Radio::AddressCheck::Broadcast00));				// 0x06
+		PT_CALL(radio.configurePacketAutomationControl0(this,
+			Radio::DataWhitening::Disabled,
+			Radio::PacketFormat::Normal,	// TODO: change to RandomTx
+			Radio::CrcCalculation::Enabled,
+			Radio::PacketLengthConfig::Variable));			// 0x05
+		PT_CALL(radio.configureAddress(this, 0xff));		// 0xff
+		PT_CALL(radio.configureChannelNumber(this, 0x00));	// 0x00
+		PT_CALL(radio.configureIfFrequency(this, 0x08));	// 0x08
+		PT_CALL(radio.configureFrequencyOffset(this, 0x00));// 0x00
+		// 433MHz
+		PT_CALL(radio.configureBaseFrequency(this, 0x10a762));// 0x10, 0xa7, 0x62
 
 		// main loop
 		while(true){
