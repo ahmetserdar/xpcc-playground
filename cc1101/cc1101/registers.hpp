@@ -269,7 +269,7 @@ public:
 	/// bandwidth below 325kHz at time of wake-up.
 	/// Part of the 0x03 FIFOTHR register (datasheet page 72)
 	enum class
-	AdcRetention
+	AdcRetention : uint8_t
 	{
 		RxFilterAbove325kHz = 0,
 		RxFilterBelow325kHz = Bit6,
@@ -280,7 +280,7 @@ public:
 	/// This can be used for close in reception (see DN010).
 	/// Part of the 0x03 FIFOTHR register (datasheet page 72)
 	enum class
-	RxAttenuation
+	RxAttenuation : uint8_t
 	{
 		dB0  = 0,
 		dB6  = Bit4,
@@ -292,7 +292,7 @@ public:
 	///
 	/// Part of the 0x03 FIFOTHR register (datasheet page 72)
 	enum class
-	FifoThreshold
+	FifoThreshold : uint8_t
 	{
 		Tx61Rx4  = 0x00,
 		Tx57Rx8  = 0x01,
@@ -318,7 +318,7 @@ public:
 	/// packet lentgh is limited to the Rx Fifo size.
 	/// Part of the 0x07 PKTCTRL1 register (datasheet page 73)
 	enum class
-	CrcAutoFlush
+	CrcAutoFlush : uint8_t
 	{
 		Disabled = 0,
 		Enabled  = Bit3,
@@ -328,7 +328,7 @@ public:
 	///
 	/// Part of the 0x07 PKTCTRL1 register (datasheet page 73)
 	enum class
-	AppendStatus
+	AppendStatus : uint8_t
 	{
 		Disabled = 0,
 		Enabled  = Bit2,
@@ -338,7 +338,7 @@ public:
 	///
 	/// Part of the 0x07 PKTCTRL1 register (datasheet page 73)
 	enum class
-	AddressCheck
+	AddressCheck : uint8_t
 	{
 		None             = 0,			///< No address check.
 		NoBradcast       = Bit0,		///< Only check for this radio's address.
@@ -351,7 +351,7 @@ public:
 	/// For more information on data whitening, consult the datasheet on page 37.
 	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
 	enum class
-	DataWhitening
+	DataWhitening : uint8_t
 	{
 		Disabled = 0,
 		Enabled  = Bit6,
@@ -361,7 +361,7 @@ public:
 	///
 	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
 	enum class
-	PacketFormat
+	PacketFormat : uint8_t
 	{
 		Normal             = 0,				///< use Fifos for Rx and Tx
 		SynchronousSerial  = Bit4,			///< data in on Gdo0, data out on Gdox
@@ -373,7 +373,7 @@ public:
 	///
 	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
 	enum class
-	CrcCalculation
+	CrcCalculation : uint8_t
 	{
 		Disabled = 0,
 		Enabled  = Bit2,
@@ -383,11 +383,121 @@ public:
 	///
 	/// Part of the 0x08 PKTCTRL0 register (datasheet page 74
 	enum class
-	PacketLengthConfig
+	PacketLengthConfig : uint8_t
 	{
 		Fixed    = 0,		///< length configured in PKTLEN register
 		Variable = Bit0,	///< packet length configure by the first byte after sync word
 		Infinite = Bit1,	///< infinite packet length mode
+	};
+
+	/// Sets the decimation ration for the delta-sigma ADC input stream and thus the channel bandwidth.
+	///
+	/// Part of the 0x10 MDMCFG4 register (datasheet page 76)
+	enum class
+	ChannelBandwidth : uint8_t
+	{
+		XOscOver32  = (0x00 << 4),	///< `8*(4+0) * 2^0`
+		XOscOver40  = (0x01 << 4),	///< `8*(4+1) * 2^0`
+		XOscOver48  = (0x02 << 4),	///< `8*(4+2) * 2^0`
+		XOscOver56  = (0x03 << 4),	///< `8*(4+3) * 2^0`
+		XOscOver64  = (0x04 << 4),	///< `8*(4+0) * 2^1`
+		XOscOver80  = (0x05 << 4),	///< `8*(4+1) * 2^1`
+		XOscOver96  = (0x06 << 4),	///< `8*(4+2) * 2^1`
+		XOscOver112 = (0x07 << 4),	///< `8*(4+3) * 2^1`
+		XOscOver128 = (0x08 << 4),	///< `8*(4+0) * 2^2`
+		XOscOver160 = (0x09 << 4),	///< `8*(4+1) * 2^2`
+		XOscOver192 = (0x0a << 4),	///< `8*(4+2) * 2^2`
+		XOscOver224 = (0x0b << 4),	///< `8*(4+3) * 2^2`
+		XOscOver256 = (0x0c << 4),	///< `8*(4+0) * 2^3`
+		XOscOver320 = (0x0d << 4),	///< `8*(4+1) * 2^3`
+		XOscOver384 = (0x0e << 4),	///< `8*(4+2) * 2^3`
+		XOscOver448 = (0x0f << 4),	///< `8*(4+3) * 2^3`
+	};
+
+	/// Digital Dc Blocking Filter
+	///
+	/// Disabling the digital DC blocking filter before the demodulator
+	/// decreases sensitivity but improves power usage.
+	/// @warn The recommended IF frequency changes when the DC blocking is disabled.
+	/// @warn Should only be disabled for data rates below 250 kBaud.
+	/// Part of the 0x12 MDMCFG2 register (datasheet page 77)
+	enum class
+	DigitalDcBlockingFilter : uint8_t
+	{
+		Enabled  = 0,
+		Disabled = Bit7,
+	};
+
+	/// Modulation Format
+	///
+	/// Part of the 0x12 MDMCFG2 register (datasheet page 77)
+	enum class
+	ModulationFormat : uint8_t
+	{
+		Fsk2   = 0,						///< Frequency Shift Keying 1 bit/symbol
+		GFsk   = Bit4,					///< Gaussian Frequency Shift Keying
+		AskOok = Bit5 | Bit4,			///< Amplitude Shift Keying or On Off Keying
+		Fsk4   = Bit6,					///< Frequency Shift Keying 2 bit/symbol
+		Msk    = Bit6 | Bit5 | Bit4,	///< Minimum Shift Keying
+	};
+
+	/// Manchester Encoding
+	///
+	/// Part of the 0x12 MDMCFG2 register (datasheet page 77)
+	enum class
+	ManchesterEncoding : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit3,
+	};
+
+	/// SyncMode
+	///
+	/// Part of the 0x12 MDMCFG2 register (datasheet page 77)
+	enum class
+	SyncMode : uint8_t
+	{
+		NoPreambleSync                        = 0,
+		/// 15 sync word bits need to match
+		SyncWord15OutOf16Bits                 = Bit0,
+		/// 16 sync word bits need to match
+		SyncWord16OutOf16Bits                 = Bit1,
+		/// 30 sync word bits need to match
+		SyncWord30OutOf32Bits                 = Bit1 | Bit0,
+		/// carrier sense needs to be above threshold
+		NoPreambleSyncCarrierSense            = NoPreambleSync | Bit2,
+		/// 15 sync word bits need to match, carrier sense needs to be above threshold
+		SyncWord15OutOf16BitsSyncCarrierSense = SyncWord15OutOf16Bits | Bit2,
+		/// 16 sync word bits need to match, carrier sense needs to be above threshold
+		SyncWord16OutOf16BitsSyncCarrierSense = SyncWord16OutOf16Bits | Bit2,
+		/// 30 sync word bits need to match, carrier sense needs to be above threshold
+		SyncWord30OutOf32BitsSyncCarrierSense = SyncWord30OutOf32Bits | Bit2,
+	};
+
+	/// Forward Error Correction
+	///
+	/// Part of the 0x13 MDMCFG1 register (datasheet page 78)
+	enum class
+	ForwardErrorCorrection : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit7,
+	};
+
+	/// Minimum number of preamble bytes to be transmitted
+	///
+	/// Part of the 0x13 MDMCFG1 register (datasheet page 78)
+	enum class
+	PreambleLength : uint8_t
+	{
+		Bytes2  = 0,
+		Bytes3  = Bit4,
+		Bytes4  = Bit5,
+		Bytes6  = Bit5 | Bit4,
+		Bytes8  = Bit6,
+		Bytes12 = Bit6 | Bit4,
+		Bytes16 = Bit6 | Bit5,
+		Bytes24 = Bit6 | Bit5 | Bit4,
 	};
 
 	enum class

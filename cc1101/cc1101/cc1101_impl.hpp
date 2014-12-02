@@ -163,6 +163,55 @@ CC1101<Configuration>::configureBaseFrequency(void *ctx, uint32_t base_freq)
 }
 
 template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureDataRateAndBandwidth(void *ctx,
+	uint8_t data_rate_m, uint8_t data_rate_e, ChannelBandwidth bw)
+{
+	CO_BEGIN(ctx);
+	CO_CALL(writeRegister(ctx, Register::MDMCFG4, static_cast<uint8_t>(bw) | (data_rate_e & 0x0f)));
+	CO_CALL(writeRegister(ctx, Register::MDMCFG3, data_rate_m));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureModem2(void *ctx,
+	ModulationFormat mod_format, SyncMode sync_mode,
+	ManchesterEncoding manchester, DigitalDcBlockingFilter dc_block)
+{
+	uint8_t d = static_cast<uint8_t>(mod_format) |
+	            static_cast<uint8_t>(sync_mode) |
+	            static_cast<uint8_t>(manchester) |
+	            static_cast<uint8_t>(dc_block);
+	return writeRegister(ctx, Register::MDMCFG2, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureModem1(void *ctx,
+	uint8_t channel_spacing_m, uint8_t channel_spacing_e,
+	PreambleLength preamble_length, ForwardErrorCorrection fec)
+{
+	CO_BEGIN(ctx);
+	CO_CALL(writeRegister(ctx, Register::MDMCFG1,
+		static_cast<uint8_t>(fec) |
+		static_cast<uint8_t>(preamble_length) |
+		(channel_spacing_e & 0x03)));
+	CO_CALL(writeRegister(ctx, Register::MDMCFG0, channel_spacing_m));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureDeviation(void *ctx,
+	uint8_t deviation_m, uint8_t deviation_e)
+{
+	uint8_t d = ((deviation_e & 0x07) << 4) | (deviation_m & 0x07);
+	return writeRegister(ctx, Register::DEVIATN, d);
+}
+
+//-----------------------------------------------------------------------------
+template<typename Configuration>
 xpcc::co::Result<uint8_t>
 CC1101<Configuration>::readRegister(void *ctx, CC1101Base::Register reg)
 {

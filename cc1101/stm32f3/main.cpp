@@ -84,6 +84,16 @@ public:
 		PT_CALL(radio.configureFrequencyOffset(this, 0x00));// 0x00
 		// 433MHz
 		PT_CALL(radio.configureBaseFrequency(this, 0x10a762));// 0x10, 0xa7, 0x62
+		PT_CALL(radio.configureDataRateAndBandwidth(this,
+			0x83, 0x0a,
+			Radio::ChannelBandwidth::XOscOver256));			// 0xca, 0x83
+		PT_CALL(radio.configureModem2(this,
+			Radio::ModulationFormat::GFsk,
+			Radio::SyncMode::SyncWord30OutOf32Bits,
+			Radio::ManchesterEncoding::Disabled,
+			Radio::DigitalDcBlockingFilter::Disabled));		// 0x93
+		PT_CALL(radio.configureModem1(this, 0xf8, 0x02));	// 0x22, 0xf8
+		PT_CALL(radio.configureDeviation(this, 5, 3));		// 0x35
 
 		// main loop
 		while(true){

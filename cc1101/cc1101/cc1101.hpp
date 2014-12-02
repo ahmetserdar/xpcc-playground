@@ -169,6 +169,35 @@ public:
 	inline xpcc::co::Result<void>
 	configureBaseFrequency(void *ctx, uint32_t base_freq);
 
+	/// Configures the data rate and the bandwidth
+	///
+	/// TODO: see how we can make this a little bit more readable
+	inline xpcc::co::Result<void>
+	configureDataRateAndBandwidth(void *ctx,
+		uint8_t data_rate_m, uint8_t data_rate_e, ChannelBandwidth bw);
+
+	/// Configures the modulation format, encoding and sync mode
+	inline xpcc::co::Result<void>
+	configureModem2(void *ctx,
+		ModulationFormat mod_format, SyncMode sync_mode,
+		ManchesterEncoding manchester = ManchesterEncoding::Disabled,
+		DigitalDcBlockingFilter dc_block = DigitalDcBlockingFilter::Enabled);
+
+	/// Configures the channel spacing, the length of the preamble and the FEC
+	inline xpcc::co::Result<void>
+	configureModem1(void *ctx,
+		uint8_t channel_spacing_m, uint8_t channel_spacing_e,
+		PreambleLength preamble_length = PreambleLength::Bytes4,
+		ForwardErrorCorrection fec = ForwardErrorCorrection::Disabled);
+
+	/// Configures deviation
+	///
+	/// TODO: find out what exactly this does
+	inline xpcc::co::Result<void>
+	configureDeviation(void *ctx, uint8_t deviation_m, uint8_t deviation_e);
+
+
+	//-------------------------------------------------------------------------
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>
 	readRegister(void *ctx, Register reg);
