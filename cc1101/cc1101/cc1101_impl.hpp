@@ -61,13 +61,23 @@ CC1101<Configuration>::initialize(void *ctx)
 template<typename Configuration>
 xpcc::co::Result<void>
 CC1101<Configuration>::configureGdo(void *ctx,
-	Gdo gdo, GdoInverted inverted, GdoSignalSelection sel)
+	Gdo gdo, GdoSignalSelection sel, GdoInverted inverted)
 {
 	return writeRegister(ctx,
 		static_cast<Register>(gdo),
 		static_cast<uint8_t>(inverted) | static_cast<uint8_t>(sel));
 }
 
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureFifoThreshold(void *ctx,
+	FifoThreshold threshold, AdcRetention retention, RxAttenuation attenuation)
+{
+	return writeRegister(ctx, Register::FIFOTHR,
+		static_cast<uint8_t>(threshold) |
+		static_cast<uint8_t>(retention) |
+		static_cast<uint8_t>(attenuation));
+}
 
 template<typename Configuration>
 xpcc::co::Result<uint8_t>

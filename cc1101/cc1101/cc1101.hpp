@@ -191,6 +191,56 @@ public:
 		XOscillatorClockOver192     = 0x3f,
 	};
 
+	/// Adc Retention setting in the Fifo threshold register
+	///
+	/// It is not fully explained what this acutally does, but the
+	/// datasheet says to set this to 1 if you want to have a Rx filter
+	/// bandwidth below 325kHz at time of wake-up.
+	enum class
+	AdcRetention
+	{
+		RxFilterAbove325kHz = 0,
+		RxFilterBelow325kHz = FIFOTHR::ADC_RETENTION,
+	};
+
+	/// Attenuation at the receiver.
+	///
+	/// This can be used for close in reception (see DN010).
+	enum class
+	RxAttenuation
+	{
+		dB0  = 0,
+		dB6  = FIFOTHR::CLOSE_IN_RX_0,
+		dB12 = FIFOTHR::CLOSE_IN_RX_1,
+		dB18 = FIFOTHR::CLOSE_IN_RX_1 | FIFOTHR::CLOSE_IN_RX_0,
+	};
+
+	/// Tx and Rx Fifo threshold, exceeded when the number of bytes is equal or higher.
+	enum class
+	FifoThreshold
+	{
+		Tx61Rx4  = 0,
+		Tx57Rx8  = FIFOTHR::FIFO_THR_0,
+		Tx53Rx12 = FIFOTHR::FIFO_THR_1,
+		Tx49Rx16 = FIFOTHR::FIFO_THR_1 | FIFOTHR::FIFO_THR_0,
+		Tx45Rx20 = FIFOTHR::FIFO_THR_2,
+		Tx41Rx24 = FIFOTHR::FIFO_THR_2 | FIFOTHR::FIFO_THR_0,
+		Tx37Rx28 = FIFOTHR::FIFO_THR_2 | FIFOTHR::FIFO_THR_1,
+		Tx33Rx32 = FIFOTHR::FIFO_THR_2 | FIFOTHR::FIFO_THR_1 |
+		           FIFOTHR::FIFO_THR_0,
+		Tx29Rx36 = FIFOTHR::FIFO_THR_3,
+		Tx25Rx40 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_0,
+		Tx21Rx44 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_1,
+		Tx17Rx48 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_1 |
+		           FIFOTHR::FIFO_THR_0,
+		Tx13Rx52 = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2,
+		Tx9Rx56  = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2 |
+		           FIFOTHR::FIFO_THR_0,
+		Tx5Rx60  = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2 |
+		           FIFOTHR::FIFO_THR_1,
+		Tx1Rx64  = FIFOTHR::FIFO_THR_3 | FIFOTHR::FIFO_THR_2 |
+		           FIFOTHR::FIFO_THR_1 | FIFOTHR::FIFO_THR_0,
+	};
 
 public:
 	/// Resets the cc1101 chip and checks PARTNUM and VERSION registers for expected values.
@@ -210,7 +260,14 @@ public:
 	///
 	/// For more information on the Gdo pins see CC1101 datasheet page 61.
 	xpcc::co::Result<void>
-	configureGdo(void *ctx, Gdo gdo, GdoInverted inverted, GdoSignalSelection sel);
+	configureGdo(void *ctx, Gdo gdo, GdoSignalSelection sel,
+		GdoInverted inverted = GdoInverted::No);
+
+	/// Writes configuration to the Rx/Tx Fifo threshold register
+	xpcc::co::Result<void>
+	configureFifoThreshold(void *ctx, FifoThreshold threshold,
+		AdcRetention retention,
+		RxAttenuation attenuation = RxAttenuation::dB0);
 
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>
