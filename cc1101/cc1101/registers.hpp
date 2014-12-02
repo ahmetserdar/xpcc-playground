@@ -13,22 +13,6 @@
 #include "bit_constants.hpp"
 #include <type_traits>
 
-// better ENUM_CLASS_FLAG macro
-#undef ENUM_CLASS_FLAG
-#define ENUM_CLASS_FLAG(name) \
-constexpr inline name operator|(name a, name b) { \
-return static_cast<name>( \
-static_cast<std::underlying_type<name>::type>(a) | \
-static_cast<std::underlying_type<name>::type>(b));} \
-constexpr inline std::underlying_type<name>::type operator&(name a, name b) { \
-return (static_cast<std::underlying_type<name>::type>(a) & static_cast<std::underlying_type<name>::type>(b));} \
-constexpr inline std::underlying_type<name>::type operator&( \
-std::underlying_type<name>::type a, name b) \
-{return ((a) & static_cast<std::underlying_type<name>::type>(b));} \
-constexpr inline std::underlying_type<name>::type operator&( \
-name a, std::underlying_type<name>::type b) \
-{return (static_cast<std::underlying_type<name>::type>(a) & (b));}
-
 namespace xpcc
 {
 namespace radio
@@ -817,8 +801,5 @@ public:
 };	// class CC1101Registers
 }	// namespace radio
 }	// namespace xpcc
-
-ENUM_CLASS_FLAG(xpcc::radio::CC1101Registers::FIFOTHR)
-
 
 #endif	// XPCC_CC1101_REGISTERS_HPP
