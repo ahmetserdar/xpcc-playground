@@ -210,6 +210,41 @@ CC1101<Configuration>::configureDeviation(void *ctx,
 	return writeRegister(ctx, Register::DEVIATN, d);
 }
 
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureMainRadioFsm2(void *ctx,
+	uint8_t rx_time, RxTimeRssi rx_time_rssi, RxTimeQual rx_time_qual)
+{
+	uint8_t d = (rx_time & 0x07) |
+	            static_cast<uint8_t>(rx_time_rssi) |
+	            static_cast<uint8_t>(rx_time_qual);
+	return writeRegister(ctx, Register::MCSM2, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureMainRadioFsm1(void *ctx,
+	CcaMode cca, RxOffMode rx_off_mode, TxOffMode tx_off_mode)
+{
+	uint8_t d = static_cast<uint8_t>(cca) |
+	            static_cast<uint8_t>(rx_off_mode) |
+	            static_cast<uint8_t>(tx_off_mode);
+	return writeRegister(ctx, Register::MCSM1, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureMainRadioFsm0(void *ctx,
+	FsAutoCallibration auto_cal, PowerTimeout power_timeout,
+	PinControl pin_control, ForceXOscOnDuringSleep force_xosc_on)
+{
+	uint8_t d = static_cast<uint8_t>(auto_cal) |
+	            static_cast<uint8_t>(power_timeout) |
+	            static_cast<uint8_t>(pin_control) |
+	            static_cast<uint8_t>(force_xosc_on);
+	return writeRegister(ctx, Register::MCSM0, d);
+}
+
 //-----------------------------------------------------------------------------
 template<typename Configuration>
 xpcc::co::Result<uint8_t>

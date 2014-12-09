@@ -94,6 +94,13 @@ public:
 			Radio::DigitalDcBlockingFilter::Disabled));		// 0x93
 		PT_CALL(radio.configureModem1(this, 0xf8, 0x02));	// 0x22, 0xf8
 		PT_CALL(radio.configureDeviation(this, 5, 3));		// 0x35
+		PT_CALL(radio.configureMainRadioFsm2(this, 7));		// 0x07
+		PT_CALL(radio.configureMainRadioFsm1(this,
+			Radio::CcaMode::UnlessReceivingPacket,
+			Radio::RxOffMode::Idle,
+			Radio::TxOffMode::Idle));						// 0x20
+		PT_CALL(radio.configureMainRadioFsm0(this,
+			Radio::FsAutoCallibration::IdleToRxOrTx));		// 0x18
 
 		// main loop
 		while(true){

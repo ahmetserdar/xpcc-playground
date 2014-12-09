@@ -196,6 +196,31 @@ public:
 	inline xpcc::co::Result<void>
 	configureDeviation(void *ctx, uint8_t deviation_m, uint8_t deviation_e);
 
+	/// Configures part of the Main Radio State Machine
+	///
+	/// TODO: see how we can make this a little bit more readable
+	inline xpcc::co::Result<void>
+	configureMainRadioFsm2(void *ctx,
+		uint8_t rx_time,
+		RxTimeRssi rx_time_rssi = RxTimeRssi::Disabled,
+		RxTimeQual rx_time_qual = RxTimeQual::Disabled);
+
+	/// Configures part of the Main Radio State Machine
+	///
+	/// TODO: see how we can make this a little bit more readable
+	inline xpcc::co::Result<void>
+	configureMainRadioFsm1(void *ctx,
+		CcaMode cca, RxOffMode rx_off_mode, TxOffMode tx_off_mode);
+
+	/// Configures part of the Main Radio State Machine
+	///
+	/// TODO: see how we can make this a little bit more readable
+	inline xpcc::co::Result<void>
+	configureMainRadioFsm0(void *ctx,
+		FsAutoCallibration auto_cal,
+		PowerTimeout power_timeout = PowerTimeout::Count64,
+		PinControl pin_control = PinControl::Disabled,
+		ForceXOscOnDuringSleep force_xosc_on = ForceXOscOnDuringSleep::Disabled);
 
 	//-------------------------------------------------------------------------
 	/// Reads and returns value of register.

@@ -500,6 +500,112 @@ public:
 		Bytes24 = Bit6 | Bit5 | Bit4,
 	};
 
+	/// Direct RX termination based on RSSI measurement (carrier sense)
+	///
+	/// Part of the 0x16 MCSM2 register (datasheet page 80)
+	enum class
+	RxTimeRssi : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit4,
+	};
+
+	/// When RX_TIME timer expires and this is enabled PQI is checked
+	///
+	/// Part of the 0x16 MCSM2 register (datasheet page 80)
+	enum class
+	RxTimeQual : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit3,
+	};
+
+	/// Slelects the CCA Mode
+	///
+	/// Part of the 0x17 MCSM1 register (datasheet page 81)
+	enum class
+	CcaMode : uint8_t
+	{
+		Always                = 0,
+		IfRssiBelowThreshold  = Bit4,
+		UnlessReceivingPacket = Bit5,
+		IfRssiBelowThresholdUnlessReceivingPacket = Bit5 | Bit4,
+	};
+
+	/// Slelects what should happen when a packet has been received
+	///
+	/// Part of the 0x17 MCSM1 register (datasheet page 81)
+	enum class
+	RxOffMode : uint8_t
+	{
+		Idle     = 0,
+		FsTxOn   = Bit2,
+		Tx       = Bit3,
+		StayInRx = Bit3 | Bit2,
+	};
+
+	/// Slelects what should happen when a packet has been received
+	///
+	/// Part of the 0x17 MCSM1 register (datasheet page 81)
+	enum class
+	TxOffMode : uint8_t
+	{
+		Idle     = 0,
+		FsTxOn   = Bit0,
+		StayInTx = Bit1,
+		Rx       = Bit1 | Bit0,
+	};
+
+	/// Automatically callibrate when going to Rx or Tx or back to Idle
+	///
+	/// Part of the 0x18 MCSM0 register (datasheet page 82)
+	enum class
+	FsAutoCallibration : uint8_t
+	{
+		Never           = 0,
+		IdleToRxOrTx    = Bit4,
+		RxOrTxToIdle    = Bit5,
+		/// every 4th time when going from Rx or Tx to Idle automatically
+		RxOrTxToIdle4th = Bit4 | Bit5,
+	};
+
+	/// Sets timeout between XSOC stabilization and CHP_RDYn going low
+	///
+	/// Programs the number of times the six-bit ripple counter must
+	/// expire.
+	/// For robust operation `Count64` or `Count256` when XOSC id off
+	/// during power-down is recommended.
+	/// Part of the 0x18 MCSM0 register (datasheet page 82)
+	enum class
+	PowerTimeout : uint8_t
+	{
+		Count1   = 0,			///< aprrox. 2.3-2.4 us
+		Count16  = Bit2,		///< approx. 37 - 39 us
+		Count64  = Bit3,		///< approx. 149 - 155 us
+		Count256 = Bit3 | Bit2,	///< approx. 597 - 620 us
+	};
+
+	/// Pin radio control option.
+	///
+	/// Part of the 0x18 MCSM0 register (datasheet page 82)
+	enum class
+	PinControl : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit1,
+	};
+
+	/// Forces XOSC to stay on in Sleep mode.
+	///
+	/// Part of the 0x18 MCSM0 register (datasheet page 82)
+	enum class
+	ForceXOscOnDuringSleep : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit0,
+	};
+
+
 	enum class
 	IOCFG2 : uint8_t
 	{
