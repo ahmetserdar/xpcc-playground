@@ -605,6 +605,313 @@ public:
 		Enabled  = Bit0,
 	};
 
+	/// If set the demodulator freezes the frequency offset compensation and
+	/// clock recovery feedback loops until the CS signal goes high.
+	///
+	/// Part of the 0x19 FOCCFG register (datasheet page 83)
+	enum class
+	FocBsCsGate : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit5,
+	};
+
+	/// Frequency compensation loop gain used before a sync word is detected.
+	///
+	/// Part of the 0x19 FOCCFG register (datasheet page 83)
+	enum class
+	FocPreK : uint8_t
+	{
+		K  = 0,				///< K * 1
+		K2 = Bit3,			///< K * 2
+		K3 = Bit4,			///< K * 3
+		L4 = Bit4 | Bit3,	///< K * 4
+	};
+
+	/// Frequency compensation loop gain used after a sync word is detected.
+	///
+	/// Part of the 0x19 FOCCFG register (datasheet page 83)
+	enum class
+	FocPostK : uint8_t
+	{
+		SameAsPreK = 0,
+		KOver2     = Bit2,
+	};
+
+	/// The saturation point for the frequency offset compensation algorithm.
+	///
+	/// Part of the 0x19 FOCCFG register (datasheet page 83)
+	enum class
+	FocLimit : uint8_t
+	{
+		NoFrequencyOffsetCompensation = 0,
+		ChannelBandwidthOver8         = Bit0,
+		ChannelBandwidthOver4         = Bit1,
+		ChannelBandwidthOver2         = Bit1 | Bit0,
+	};
+
+	/// Clock recovery feedback loop integral gain before a sync word is detected.
+	///
+	/// Part of the 0x1a BSCFG register (datasheet page 84)
+	enum class
+	BitSynchronizationPreKI : uint8_t
+	{
+		KI  = 0,			///< KI * 1
+		KI2 = Bit6,			///< KI * 2
+		KI3 = Bit7,			///< KI * 3
+		KI4 = Bit7 | Bit6,	///< KI * 4
+	};
+
+	/// Clock recovery feedback loop proportional gain before a sync word is detected.
+	///
+	/// Part of the 0x1a BSCFG register (datasheet page 84)
+	enum class
+	BitSynchronizationPreKP : uint8_t
+	{
+		KP  = 0,			///< KP * 1
+		KP2 = Bit4,			///< KP * 2
+		KP3 = Bit5,			///< KP * 3
+		KP4 = Bit5 | Bit4,	///< KP * 4
+	};
+
+	/// Clock recovery feedback loop integral gain after a sync word is detected.
+	///
+	/// Part of the 0x1a BSCFG register (datasheet page 84)
+	enum class
+	BitSynchronizationPostKI : uint8_t
+	{
+		SameAsPreKI = 0,
+		KIOver2     = Bit3,
+	};
+
+	/// Clock recovery feedback loop proportional gain after a sync word is detected.
+	///
+	/// Part of the 0x1a BSCFG register (datasheet page 84)
+	enum class
+	BitSynchronizationPostKP : uint8_t
+	{
+		SameAsPreKP = 0,
+		KPOver2     = Bit2,
+	};
+
+	/// The saturation point for the data rate offset compensation algorithm.
+	///
+	/// Part of the 0x1a BSCFG register (datasheet page 84)
+	enum class
+	BitSynchronizationLimit : uint8_t
+	{
+		NoDataRateOffsetCompensation = 0,
+		DataRateOffset3Percent       = Bit0,		///< +/-  3.125%
+		DataRateOffset6Percent       = Bit1,		///< +/-  6.250%
+		DataRateOffset12Percent      = Bit1 | Bit0,	///< +/- 12.500%
+	};
+
+	/// Reduces the maximum allowed DVGA gain.
+	///
+	/// Part of the 0x1b AGCCTRL2 register (datasheet page 85)
+	enum class
+	MaxDVgaGain : uint8_t
+	{
+		/// i.e. all gain settings can be used
+		HighestSetting       = 0,
+		/// i.e. the highest gain setting cannot be used
+		SecondHighestSetting = Bit6,
+		/// i.e. the 2 highest gain settings cannot be used
+		ThirdHighestSetting  = Bit7,
+		/// i.e. the 3 highest gain settings cannot be used
+		FourthHighestSetting = Bit7 | Bit6,
+	};
+
+	/// Reduces the maximum allowed LNA and LNA2 gain relative to max gain.
+	///
+	/// Part of the 0x1b AGCCTRL2 register (datasheet page 85)
+	enum class
+	MaxLnaGain : uint8_t
+	{
+		Max       = 0,
+		BelowMax2Point6dB  = Bit3,
+		BelowMax6Point1dB  = Bit4,
+		BelowMax7Point4dB  = Bit4 | Bit3,
+		BelowMax9Point2dB  = Bit5,
+		BelowMax11Point5dB = Bit5 | Bit3,
+		BelowMax14Point6dB = Bit5 | Bit4,
+		BelowMax17Point1dB = Bit5 | Bit4 | Bit3,
+	};
+
+	/// The target value for the averaged amplitude from the digital channel filter.
+	///
+	/// Part of the 0x1b AGCCTRL2 register (datasheet page 85)
+	enum class
+	MagnTarget : uint8_t
+	{
+		dB24 = 0,
+		dB27 = Bit3,
+		dB30 = Bit4,
+		dB33 = Bit4 | Bit3,
+		dB36 = Bit5,
+		dB38 = Bit5 | Bit3,
+		dB40 = Bit5 | Bit4,
+		dB42 = Bit5 | Bit4 | Bit3,
+	};
+
+	/// Selects which LNA gain to decrease first.
+	///
+	/// Part of the 0x1c AGCCTRL1 register (datasheet page 86)
+	enum class
+	AgcLnaPriority : uint8_t
+	{
+		DecreaseLna2GainFirst = 0,
+		DecreaseLnaGainFirst  = Bit6,
+	};
+
+	/// The relative change threshold for asserting carrier sense.
+	///
+	/// Part of the 0x1c AGCCTRL1 register (datasheet page 86)
+	enum class
+	CarrierSenseRelativeThreshold : uint8_t
+	{
+		Disabled                = 0,
+		Increase6dBInRssiValue  = Bit4
+		Increase10dBInRssiValue = Bit5
+		Increase14dBInRssiValue = Bit5 | Bit4,
+	};
+
+	/// The level of hysteresis on the magnitude deviation.
+	///
+	/// Part of the 0x1d AGCCTRL0 register (datasheet page 87)
+	enum class
+	HysteresisLevel : uint8_t
+	{
+		None   = 0,				///< Small symmetric dead zone, high gain.
+		Low    = Bit6,			///< Small asymmetric dead zone, medium gain.
+		Medium = Bit7,			///< Medium asymmetric dead zone, medium gain.
+		Large  = Bit7 | Bit6,	///< Large asymmetric dead zone, low gain.
+	};
+
+	/// Number of channel filter samples from a gain adjustment before reset.
+	///
+	/// Part of the 0x1d AGCCTRL0 register (datasheet page 87)
+	enum class
+	WaitTime : uint8_t
+	{
+		FilterSamples8  = 0,
+		FilterSamples16 = Bit4,
+		FilterSamples24 = Bit5,
+		FilterSamples32 = Bit5 | Bit4,
+	};
+
+	/// Controls when the AGC gain should be frozen.
+	///
+	/// Part of the 0x1d AGCCTRL0 register (datasheet page 87)
+	enum class
+	AgcFreeze : uint8_t
+	{
+		/// Always adjust gain when required.
+		NormalOperation      = 0,
+		/// Gain setting is frozen when a sync word has been found.
+		AfterSyncWord        = Bit2,
+		/// Manually freeze the analog setting and continue to adjust digital gain.
+		ManuallyFreezeAnalog = Bit3,
+		/// Manually freeze both, analog and digital gain. Used for manually overriding the gain.
+		ManuallyFreezeBoth   = Bit3 | Bit2,
+	};
+
+	/// Filter Length
+	///
+	/// Part of the 0x1d AGCCTRL0 register (datasheet page 87)
+	enum class
+	FilterLength : uint8_t
+	{
+		FilterSamples8  = 0,			///< For 2-FSK, 4-FSK, MSK.
+		dB4             = 0,			///< OOK/ASK decision boundary
+		FilterSamples16 = Bit0,			///< For 2-FSK, 4-FSK, MSK.
+		dB8             = Bit0,			///< OOK/ASK decision boundary
+		FilterSamples32 = Bit1,			///< For 2-FSK, 4-FSK, MSK.
+		dB12            = Bit1,			///< OOK/ASK decision boundary
+		FilterSamples64 = Bit1 | Bit0,	///< For 2-FSK, 4-FSK, MSK.
+		dB16            = Bit1 | Bit0,	///< OOK/ASK decision boundary
+	};
+
+	/// Power down signal to RC oscillator.
+	///
+	/// Part of the 0x20 WORCTRL register (datasheet page 88)
+	enum class
+	PowerDownSignalToRcOscialltor : uint8_t
+	{
+		AutomaticCallibration = 0,
+		Default               = Bit7,
+	};
+
+	/// Timeout setting from register block.
+	///
+	/// Part of the 0x20 WORCTRL register (datasheet page 88)
+	enum class
+	Event1Timeout : uint8_t
+	{
+		TEvent4  = 0,					///< 0.111 - 0.115 ms
+		TEvent6  = Bit4,				///< 0.167 - 0.173 ms
+		TEvent8  = Bit5,				///< 0.222 - 0.230 ms
+		TEvent12 = Bit5 | Bit4,			///< 0.333 - 0.346 ms
+		TEvent16 = Bit6,				///< 0.444 - 0.462 ms
+		TEvent24 = Bit6 | Bit4,			///< 0.667 - 0.692 ms
+		TEvent32 = Bit6 | Bit5,			///< 0.889 - 0.923 ms
+		TEvent48 = Bit6 | Bit5 | Bit4,	///< 1.333 - 1.385 ms
+	};
+
+	/// RC Oscillator Calibration
+	///
+	/// Part of the 0x20 WORCTRL register (datasheet page 88)
+	enum class
+	RcOscillatorCalibration : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit3,
+	};
+
+	/// Event0 resolution and maximum timeout of WOR module and under normal Rx operation.
+	///
+	/// Part of the 0x20 WORCTRL register (datasheet page 88)
+	enum class
+	WorResolution : uint8_t
+	{
+		Period2ToThe0  = 0,				///<  28 -  29 us =>  1.8 -  1.9 s   max timeout
+		Period2ToThe5  = Bit0,			///< 890 - 920 us =>   58 -   61 s   max timeout
+		Period2ToThe10 = Bit1,			///<  28 -  30 ms =>   31 -   32 min max timeout
+		Period2ToThe15 = Bit1 | Bit0,	///< 910 - 940 ms => 16.5 - 17.2 h   max timeout
+	};
+
+	/// Enable VCO selection calibration stage when 1.
+	///
+	/// Part of the 0x2e TEST register (datasheet page 92)
+	enum class
+	VcoSelectionCalibration : uint8_t
+	{
+		Disabled = 0,
+		Enabled  = Bit1,
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	enum class
 	IOCFG2 : uint8_t

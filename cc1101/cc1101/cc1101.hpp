@@ -222,6 +222,119 @@ public:
 		PinControl pin_control = PinControl::Disabled,
 		ForceXOscOnDuringSleep force_xosc_on = ForceXOscOnDuringSleep::Disabled);
 
+	/// Configures the Frequency Offset Compensation Algorithm
+	inline xpcc::co::Result<void>
+	configureFrequencyOffsetCompensation(void *ctx,
+		FocBsCsGate bs_cs_gate,
+		FocPreK pre_k,
+		FocPostK post_kl = FocPostK::KOver2,
+		FocLimit limit = FocLimit::ChannelBandwidthOver4);
+
+	/// Configures the Bit Synchronization Algorithm
+	inline xpcc::co::Result<void>
+	configureBitSynchronization(void *ctx,
+		BitSynchronizationPreKI  pre_ki  = BitSynchronizationPreKI::KI2,
+		BitSynchronizationPreKP  pre_kp  = BitSynchronizationPreKP::KP3,
+		BitSynchronizationPostKI post_ki = BitSynchronizationPostKI::KIOver2,
+		BitSynchronizationPostKP post_kp = BitSynchronizationPostKP::KPOver2,
+		BitSynchronizationLimit  limit   = BitSynchronizationLimit::NoDataRateOffsetCompensation);
+
+	/// Configures the Adjustable Gain Control Algorithm
+	inline xpcc::co::Result<void>
+	configureAgc(void *ctx,
+		MaxDVgaGain max_dvga_gain,
+		MaxLnaGain  max_lna_gain = MaxLnaGain::Max,
+		MagnTarget  magn_target  = MagnTarget::dB33,
+		AgcLnaPriority lna_priority = AgcLnaPriority::DecreaseLnaGainFirst
+		CarrierSenseRelativeThreshold
+			carrier_sense_relative_threshold = CarrierSenseRelativeThreshold::Disabled
+		int8_t carrier_sense_absolute_threshold = 0,
+		HysteresisLevel hyst_level = HysteresisLevel::Medium,
+		WaitTime wait_time = WaitTime::FilterSamples16,
+		AgcFreeze agc_freeze = AgcFreeze::NormalOperation,
+		FilterLength filter_length = FilterLength::FilterSamples16);
+
+	/// Configures the Event0 timeout
+	///
+	/// TODO: see how we can make this a little bit more readable
+	inline xpcc::co::Result<void>
+	configureEvent0Timeout(void *ctx, uint16_t timeout_value);
+
+
+	/// Configures the wake on radio
+	inline xpcc::co::Result<void>
+	configureWakeOnRadio(void *ctx,
+		WorResolution wor_resolution,
+		PowerDownSignalToRcOscialltor
+			power_down = PowerDownSignalToRcOscialltor::Default,
+		Event1Timeout event1_timeout = Event1Timeout::TEvent48,
+		RcOscillatorCalibration
+			rc_callibration = RcOscillatorCalibration::Enabled);
+
+	/// Configures the rx front end
+	///
+	/// Basically these are all magic values without any real description
+	/// in the TI datasheet (page 89).
+	inline xpcc::co::Result<void>
+	configureRxFrontEnd(void *ctx,
+		uint8_t lna_current = 1,
+		uint8_t lna2mix_current = 1
+		uint8_t lodiv_buf_current_rx = 1,
+		uint8_t mix_current = 2);
+
+	/// Configures the tx front end
+	inline xpcc::co::Result<void>
+	configureTxFrontEnd(void *ctx,
+		uint8_t pa_power_index = 0,		///< points to value in the PATABLE
+		uint8_t lodiv_buf_current = 1	///< magic value
+		);
+
+	/// Configures the upper bytes of the Frequency Synthesizer Calibration
+	///
+	/// This was split up into one method for the upper three and
+	/// one for the lowest byte, because the upper three bytes
+	/// might need to be changed during run time.
+	///
+	/// Basically these are all magic values without any real description
+	/// in the TI datasheet (page 89-90).
+	inline xpcc::co::Result<void>
+	configureFrequencySynthesizerCalibration321(void *ctx,
+		uint8_t fs_cal_3, uint8_t fs_cal_2, uint8_t fs_cal_1);
+
+	/// Configures the lowest byte of the Frequency Synthesizer Calibration
+	///
+	/// This was split up into one method for the upper three and
+	/// one for the lowest byte, because the upper three bytes
+	/// might need to be changed during run time.
+	///
+	/// Basically these are all magic values without any real description
+	/// in the TI datasheet (page 89-90).
+	inline xpcc::co::Result<void>
+	configureFrequencySynthesizerCalibration0(void *ctx, uint8_t fs_cal_0);
+
+	/// Configures the RC Oscillator
+	///
+	/// Basically these are all magic values without any real description
+	/// in the TI datasheet (page 90).
+	inline xpcc::co::Result<void>
+	configureRcOscillator(void *ctx, uint8_t high_byte = 0x41, uint8_t low_byte = 0x00);
+
+	// FSTEST is "For test only. Do not write to this register."
+
+	/// Configures the Test Registers
+	///
+	/// Basically these are all magic values without any real description
+	/// in the TI datasheet (page 91).
+	inline xpcc::co::Result<void>
+	configureTest(void *ctx,
+		VcoSelectionCalibration vco_cal,
+		uint8_t ptest    = 0x7f,
+		uint8_t agc_test = 0x3f,
+		uint8_t test2    = 0x81,
+		uint8_t test1    = 0x35,
+		uint8_t test0    = 0x09		///< bit1 will be overwritten by vco_cal
+		);
+
 	//-------------------------------------------------------------------------
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>
