@@ -625,7 +625,7 @@ public:
 		K  = 0,				///< K * 1
 		K2 = Bit3,			///< K * 2
 		K3 = Bit4,			///< K * 3
-		L4 = Bit4 | Bit3,	///< K * 4
+		K4 = Bit4 | Bit3,	///< K * 4
 	};
 
 	/// Frequency compensation loop gain used after a sync word is detected.
@@ -745,13 +745,13 @@ public:
 	MagnTarget : uint8_t
 	{
 		dB24 = 0,
-		dB27 = Bit3,
-		dB30 = Bit4,
-		dB33 = Bit4 | Bit3,
-		dB36 = Bit5,
-		dB38 = Bit5 | Bit3,
-		dB40 = Bit5 | Bit4,
-		dB42 = Bit5 | Bit4 | Bit3,
+		dB27 = Bit0,
+		dB30 = Bit1,
+		dB33 = Bit1 | Bit0,
+		dB36 = Bit2,
+		dB38 = Bit2 | Bit0,
+		dB40 = Bit2 | Bit1,
+		dB42 = Bit2 | Bit1 | Bit0,
 	};
 
 	/// Selects which LNA gain to decrease first.
@@ -771,8 +771,8 @@ public:
 	CarrierSenseRelativeThreshold : uint8_t
 	{
 		Disabled                = 0,
-		Increase6dBInRssiValue  = Bit4
-		Increase10dBInRssiValue = Bit5
+		Increase6dBInRssiValue  = Bit4,
+		Increase10dBInRssiValue = Bit5,
 		Increase14dBInRssiValue = Bit5 | Bit4,
 	};
 
@@ -888,30 +888,10 @@ public:
 	{
 		Disabled = 0,
 		Enabled  = Bit1,
-	}
+	};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+// Unused Register Definitions
 
 	enum class
 	IOCFG2 : uint8_t

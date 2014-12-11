@@ -226,7 +226,7 @@ xpcc::co::Result<void>
 CC1101<Configuration>::configureMainRadioFsm1(void *ctx,
 	CcaMode cca, RxOffMode rx_off_mode, TxOffMode tx_off_mode)
 {
-	uint8_t d = static_cast<uint8_t>(cca) |
+	uint8_t d = static_cast<uint8_t>(cca)         |
 	            static_cast<uint8_t>(rx_off_mode) |
 	            static_cast<uint8_t>(tx_off_mode);
 	return writeRegister(ctx, Register::MCSM1, d);
@@ -238,11 +238,157 @@ CC1101<Configuration>::configureMainRadioFsm0(void *ctx,
 	FsAutoCallibration auto_cal, PowerTimeout power_timeout,
 	PinControl pin_control, ForceXOscOnDuringSleep force_xosc_on)
 {
-	uint8_t d = static_cast<uint8_t>(auto_cal) |
+	uint8_t d = static_cast<uint8_t>(auto_cal)      |
 	            static_cast<uint8_t>(power_timeout) |
-	            static_cast<uint8_t>(pin_control) |
+	            static_cast<uint8_t>(pin_control)   |
 	            static_cast<uint8_t>(force_xosc_on);
 	return writeRegister(ctx, Register::MCSM0, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureFrequencyOffsetCompensation(void *ctx,
+	FocBsCsGate bs_cs_gate, FocPreK pre_k, FocPostK post_kl, FocLimit limit)
+{
+	uint8_t d = static_cast<uint8_t>(bs_cs_gate) |
+	            static_cast<uint8_t>(pre_k)      |
+	            static_cast<uint8_t>(post_kl)    |
+	            static_cast<uint8_t>(limit);
+	return writeRegister(ctx, Register::FOCCFG, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureBitSynchronization(void *ctx,
+	BitSynchronizationPreKI  pre_ki,  BitSynchronizationPreKP  pre_kp,
+	BitSynchronizationPostKI post_ki, BitSynchronizationPostKP post_kp,
+	BitSynchronizationLimit limit)
+{
+	uint8_t d = static_cast<uint8_t>(pre_ki)  |
+	            static_cast<uint8_t>(pre_kp)  |
+	            static_cast<uint8_t>(post_ki) |
+	            static_cast<uint8_t>(post_kp) |
+	            static_cast<uint8_t>(limit);
+	return writeRegister(ctx, Register::BSCFG, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureAgc(void *ctx,
+	MaxDVgaGain max_dvga_gain, MaxLnaGain max_lna_gain,
+	MagnTarget magn_target, AgcLnaPriority lna_priority,
+	CarrierSenseRelativeThreshold carrier_sense_relative_threshold,
+	int8_t carrier_sense_absolute_threshold, HysteresisLevel hyst_level,
+	WaitTime wait_time, AgcFreeze agc_freeze, FilterLength filter_length)
+{
+	static uint32_t v;
+	CO_BEGIN(ctx);
+	v = static_cast<uint8_t>(max_dvga_gain) |
+	    static_cast<uint8_t>(max_lna_gain)  |
+	    static_cast<uint8_t>(magn_target);
+	CO_CALL(writeRegister(ctx, Register::AGCTRL2, v));
+	v =  static_cast<uint8_t>(lna_priority) |
+	     static_cast<uint8_t>(carrier_sense_relative_threshold) |
+	    (static_cast<uint8_t>(carrier_sense_absolute_threshold) & 0x0f);
+	CO_CALL(writeRegister(ctx, Register::AGCTRL1, v));
+	v = static_cast<uint8_t>(hyst_level) |
+	    static_cast<uint8_t>(wait_time)  |
+	    static_cast<uint8_t>(agc_freeze) |
+	    static_cast<uint8_t>(filter_length);
+	CO_CALL(writeRegister(ctx, Register::AGCTRL0, v));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureEvent0Timeout(void *ctx, uint16_t timeout_value)
+{
+	CO_BEGIN(ctx);
+	CO_CALL(writeRegister(ctx, Register::WOREVT1, static_cast<uint8_t>(timeout_value >> 8)));
+	CO_CALL(writeRegister(ctx, Register::WOREVT0, static_cast<uint8_t>(timeout_value & 0xff)));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureWakeOnRadio(void *ctx,
+	WorResolution wor_resolution, PowerDownSignalToRcOscialltor power_down,
+	Event1Timeout event1_timeout, RcOscillatorCalibration rc_callibration)
+{
+	uint8_t d = static_cast<uint8_t>(power_down) |
+	            static_cast<uint8_t>(event1_timeout) |
+	            static_cast<uint8_t>(rc_callibration) |
+	            static_cast<uint8_t>(wor_resolution);
+	return writeRegister(ctx, Register::WORCTRL, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureRxFrontEnd(void *ctx,
+	uint8_t lna_current, uint8_t lna2mix_current,
+	uint8_t lodiv_buf_current_rx, uint8_t mix_current)
+{
+	uint8_t d = ((lna_current          & 0x03) << 6) |
+	            ((lna2mix_current      & 0x03) << 4) |
+	            ((lodiv_buf_current_rx & 0x03) << 2) |
+	            ((mix_current          & 0x03) << 0);
+	return writeRegister(ctx, Register::FREND1, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureTxFrontEnd(void *ctx,
+	uint8_t pa_power_index, uint8_t lodiv_buf_current)
+{
+	uint8_t d = ((lodiv_buf_current & 0x03) << 4) |
+	            ((pa_power_index    & 0x07) << 0);
+	return writeRegister(ctx, Register::FREND0, d);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureFrequencySynthesizerCalibration321(void *ctx,
+	uint8_t fs_cal_3, uint8_t fs_cal_2, uint8_t fs_cal_1)
+{
+	CO_BEGIN(ctx);
+	CO_CALL(writeRegister(ctx, Register::FSCAL3, fs_cal_3));
+	CO_CALL(writeRegister(ctx, Register::FSCAL2, fs_cal_2));
+	CO_CALL(writeRegister(ctx, Register::FSCAL1, fs_cal_1));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureFrequencySynthesizerCalibration0(void *ctx,
+	uint8_t fs_cal_0)
+{
+	return writeRegister(ctx, Register::FSCAL0, fs_cal_0);
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureRcOscillator(void *ctx,
+	uint8_t high_byte, uint8_t low_byte)
+{
+	CO_BEGIN(ctx);
+	CO_CALL(writeRegister(ctx, Register::RCCTRL1, high_byte));
+	CO_CALL(writeRegister(ctx, Register::RCCTRL0, low_byte));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::configureTest(void *ctx,
+	VcoSelectionCalibration vco_cal, uint8_t ptest, uint8_t agc_test,
+	uint8_t test2, uint8_t test1, uint8_t test0)
+{
+	CO_BEGIN(ctx);
+	CO_CALL(writeRegister(ctx, Register::PTEST,   ptest));
+	CO_CALL(writeRegister(ctx, Register::AGCTEST, agc_test));
+	CO_CALL(writeRegister(ctx, Register::TEST2,   test2));
+	CO_CALL(writeRegister(ctx, Register::TEST1,   test1));
+	CO_CALL(writeRegister(ctx, Register::TEST0, (test0 & 0xfd) | static_cast<uint8_t>(vco_cal)));
+	CO_END();
 }
 
 //-----------------------------------------------------------------------------

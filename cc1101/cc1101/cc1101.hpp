@@ -245,9 +245,9 @@ public:
 		MaxDVgaGain max_dvga_gain,
 		MaxLnaGain  max_lna_gain = MaxLnaGain::Max,
 		MagnTarget  magn_target  = MagnTarget::dB33,
-		AgcLnaPriority lna_priority = AgcLnaPriority::DecreaseLnaGainFirst
+		AgcLnaPriority lna_priority = AgcLnaPriority::DecreaseLnaGainFirst,
 		CarrierSenseRelativeThreshold
-			carrier_sense_relative_threshold = CarrierSenseRelativeThreshold::Disabled
+			carrier_sense_relative_threshold = CarrierSenseRelativeThreshold::Disabled,
 		int8_t carrier_sense_absolute_threshold = 0,
 		HysteresisLevel hyst_level = HysteresisLevel::Medium,
 		WaitTime wait_time = WaitTime::FilterSamples16,
@@ -259,7 +259,6 @@ public:
 	/// TODO: see how we can make this a little bit more readable
 	inline xpcc::co::Result<void>
 	configureEvent0Timeout(void *ctx, uint16_t timeout_value);
-
 
 	/// Configures the wake on radio
 	inline xpcc::co::Result<void>
@@ -278,7 +277,7 @@ public:
 	inline xpcc::co::Result<void>
 	configureRxFrontEnd(void *ctx,
 		uint8_t lna_current = 1,
-		uint8_t lna2mix_current = 1
+		uint8_t lna2mix_current = 1,
 		uint8_t lodiv_buf_current_rx = 1,
 		uint8_t mix_current = 2);
 

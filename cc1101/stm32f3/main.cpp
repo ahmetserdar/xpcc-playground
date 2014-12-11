@@ -98,9 +98,27 @@ public:
 		PT_CALL(radio.configureMainRadioFsm1(this,
 			Radio::CcaMode::UnlessReceivingPacket,
 			Radio::RxOffMode::Idle,
-			Radio::TxOffMode::Idle));						// 0x20
+			Radio::TxOffMode::Idle));							// 0x20
 		PT_CALL(radio.configureMainRadioFsm0(this,
-			Radio::FsAutoCallibration::IdleToRxOrTx));		// 0x18
+			Radio::FsAutoCallibration::IdleToRxOrTx));			// 0x18
+		PT_CALL(radio.configureFrequencyOffsetCompensation(this,
+			Radio::FocBsCsGate::Disabled, Radio::FocPreK::K3));	// 0x16
+		PT_CALL(radio.configureBitSynchronization(this));		// 0x6c
+		PT_CALL(radio.configureAgc(this,
+			Radio::MaxDVgaGain::SecondHighestSetting));		// 0x43, 0x40, 0x91
+		PT_CALL(radio.configureEvent0Timeout(this, 0x876b));// 0x87, 0x6b
+		PT_CALL(radio.configureWakeOnRadio(this,
+			Radio::WorResolution::Period2ToThe15));			// 0xfb
+		PT_CALL(radio.configureRxFrontEnd(this));			// 0x56
+		PT_CALL(radio.configureTxFrontEnd(this));			// 0x10
+		PT_CALL(radio.configureFrequencySynthesizerCalibration321(this,
+			0xe9, 0x2a, 0x00));								// 0xe9, 0x2a, 0x00
+		PT_CALL(radio.configureFrequencySynthesizerCalibration0(this,
+			0x1f));											// 0x1f
+		PT_CALL(radio.configureRcOscillator(this));			// 0x41, 0x00
+		PT_CALL(radio.configureTest(this,
+			Radio::VcoSelectionCalibration::Disabled));		// 0x7f, 0x3f, 0x81, 0x35, 0x09
+
 
 		// main loop
 		while(true){
