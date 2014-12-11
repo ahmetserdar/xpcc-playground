@@ -22,6 +22,13 @@
 	#define	XPCC_LOG_LEVEL xpcc::log::ERROR
 #endif
 
+template<class T>
+constexpr T
+max(T a, T b)
+{
+	return (a > b)? a : b;
+}
+
 namespace xpcc
 {
 namespace radio
@@ -391,6 +398,32 @@ CC1101<Configuration>::configureTest(void *ctx,
 	CO_END();
 }
 
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::sendData(void *ctx, uint8_t *buffer, size_t len)
+{
+	CO_BEGIN(ctx);
+	// Go Into Rx State
+	// CO_CALL(writeCommand(ctx, Command::SRX));
+	// TODO: maybe check MARCSTATE
+	xpcc::delayMicroseconds(500);	// TODO: is this necessary
+	// set data length
+	CO_CALL(writeRegister(ctx, Register::TXFIFO, max(static_cast<size_t>(61), len)));
+	// write data to tx buffer
+	CO_CALL(writeRegister(ctx, Register::TXFIFO, buffer, len));
+	// Go Into Tx State
+	CO_CALL(writeCommand(ctx, Command::STX));
+	// Wait for Gdo0 to go high (i.e. until sync word is transmitted)
+	CO_WAIT_UNTIL(Gdo0::read());
+	// Wait for Gdo0 to go low  (i.e. until the end of the packet)
+	CO_WAIT_WHILE(Gdo0::read());
+	// Go to IDLE state
+	CO_CALL(writeCommand(ctx, Command::SIDLE));
+	// Flush Tx Fifo
+	CO_CALL(writeCommand(ctx, Command::SFTX));
+	CO_END();
+}
+
 //-----------------------------------------------------------------------------
 template<typename Configuration>
 xpcc::co::Result<uint8_t>
@@ -446,9 +479,19 @@ template<typename Configuration>
 xpcc::co::Result<void>
 CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_t* values, size_t length)
 {
+	static size_t ii;
 	CO_BEGIN(ctx);
-
-	// FIXME: implement!
+	Cs::reset();
+	// wait for Miso to go low
+	// FIXME: see `readRegister`
+	CO_WAIT_UNTIL(!Miso::read());
+	CO_CALL(Spi::writeRead(
+		static_cast<uint8_t>(reg) |
+		static_cast<uint8_t>(TransferMode::WriteBurst)));
+	for(ii = 0; ii < length; ++ii) {
+		CO_CALL(Spi::writeRead(values[ii]));
+	}
+	Cs::set();
 	CO_END();
 }
 

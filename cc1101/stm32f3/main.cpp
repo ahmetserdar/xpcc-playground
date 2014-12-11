@@ -33,6 +33,22 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #include "../cc1101/cc1101.hpp"
 
 
+static uint8_t data[] = {
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55,
+	0x55, 0x55, 0x55, 0x55, 0x55
+};
+
+
 class MainThread : public xpcc::pt::Protothread
 {
 public:
@@ -60,10 +76,10 @@ public:
 		} else {
 			XPCC_LOG_DEBUG << XPCC_FILE_INFO << "Initialized cc1101." << xpcc::endl;
 		}
-		// Configure Gdo0 as high impedance
+
 		PT_CALL(radio.configureGdo(this,
 			Radio::Gdo::Gdo0,
-			Radio::GdoSignalSelection::HighImpedance));		// 0x2e
+			Radio::GdoSignalSelection::SyncWord));			// 0x06
 		PT_CALL(radio.configureFifoThreshold(this,
 			Radio::FifoThreshold::Tx33Rx32,
 			Radio::AdcRetention::RxFilterAbove325kHz));		// 0x07
@@ -122,7 +138,12 @@ public:
 
 		// main loop
 		while(true){
-			PT_YIELD();
+			// send some data
+			PT_CALL(radio.sendData(this, data, sizeof(data)));
+			XPCC_LOG_INFO << ".";
+			// timeout
+			timer.restart(1);
+			PT_WAIT_UNTIL(timer.isExpired());
 		}
 
 		PT_END();

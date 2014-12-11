@@ -334,6 +334,10 @@ public:
 		uint8_t test0    = 0x09		///< bit1 will be overwritten by vco_cal
 		);
 
+	/// Sends data from a max 61 byte long buffer
+	inline xpcc::co::Result<void>
+	sendData(void *ctx, uint8_t *buffer, size_t len);
+
 	//-------------------------------------------------------------------------
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>

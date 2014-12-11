@@ -143,6 +143,9 @@ public:
 		RXBYTES        = 0x3b | 0xc0,	///< overflow and number of bytes in the RX FIFO
 		RCCTRL1_STATUS = 0x3c | 0xc0,	///< last RC oscillator calibration result
 		RCCTRL0_STATUS = 0x3d | 0xc0,	///< last RC oscillator calibration result
+		// FIFOS
+		TXFIFO = 0x3f,	///< write access only
+		RXFIFO = 0x3f,	///< read access only
 	};
 
 	/// Indicates whether the ouput should be inverted or not.
