@@ -1,0 +1,1 @@
+../../xpcc-doc/source/developer/coding_conventions.cpp
