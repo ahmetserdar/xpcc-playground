@@ -28,7 +28,7 @@ typedef GpioInputB0 AdcIn1;
 typedef GpioInputB1 AdcIn2;
 typedef GpioInputC0 AdcIn3;
 
-xpcc::IODeviceWrapper<Usart2> loggerDevice;
+xpcc::IODeviceWrapper<Usart2, xpcc::IOBuffer::BlockIfFull> loggerDevice;
 xpcc::log::Logger xpcc::log::info(loggerDevice);
 xpcc::log::Logger xpcc::log::debug(loggerDevice);
 
@@ -57,7 +57,7 @@ MAIN_FUNCTION
 	XPCC_LOG_INFO << "#############################################" << xpcc::endl;
 
 	// initialize Adc1
-	Adc1::initialize(Adc1::Prescaler::Div8);
+	Adc1::initialize<defaultSystemClock, MHz10>();	// FIXME: what ADC clock frequency do we want?
 	AdcIn0::connect(Adc1::Channel7);
 	AdcIn1::connect(Adc1::Channel8);
 	AdcIn2::connect(Adc1::Channel9);
