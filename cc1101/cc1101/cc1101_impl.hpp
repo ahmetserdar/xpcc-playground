@@ -29,6 +29,13 @@ max(T a, T b)
 	return (a > b)? a : b;
 }
 
+template<class T>
+constexpr T
+min(T a, T b)
+{
+	return (a < b)? a : b;
+}
+
 namespace xpcc
 {
 namespace radio
@@ -48,7 +55,7 @@ CC1101<Configuration>::initialize(void *ctx)
 	::xpcc::delayMicroseconds(25 + 5);	// "at LEAST 40 us"
 	Cs::reset();
 	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low
-	CO_CALL(Spi::writeRead(static_cast<uint8_t>(Command::SRES)));
+	CO_CALL(Spi::transfer(static_cast<uint8_t>(Command::SRES)));
 	CO_WAIT_UNTIL(!Miso::read());		// wait for Miso to go low again
 	Cs::set();
 
@@ -408,9 +415,9 @@ CC1101<Configuration>::sendData(void *ctx, uint8_t *buffer, size_t len)
 	// TODO: maybe check MARCSTATE
 	xpcc::delayMicroseconds(500);	// TODO: is this necessary
 	// set data length
-	CO_CALL(writeRegister(ctx, Register::TXFIFO, max(static_cast<size_t>(61), len)));
+	CO_CALL(writeRegister(ctx, Register::TXFIFO, min(static_cast<size_t>(61), len)));
 	// write data to tx buffer
-	CO_CALL(writeRegister(ctx, Register::TXFIFO, buffer, len));
+	CO_CALL(writeRegister(ctx, Register::TXFIFO, buffer, min(static_cast<size_t>(61), len)));
 	// Go Into Tx State
 	CO_CALL(writeCommand(ctx, Command::STX));
 	// Wait for Gdo0 to go high (i.e. until sync word is transmitted)
@@ -437,10 +444,10 @@ CC1101<Configuration>::readRegister(void *ctx, CC1101Base::Register reg)
 	//        thus maybe it might be more performant to busy wait here
 	//        since in most cases waiting won't be necessary at all.
 	CO_WAIT_UNTIL(!Miso::read());
-	CO_CALL(Spi::writeRead(
+	CO_CALL(Spi::transfer(
 		static_cast<uint8_t>(reg) |
 		static_cast<uint8_t>(TransferMode::ReadSingleByte)));
-	value = CO_CALL(Spi::writeRead(0x00));
+	value = CO_CALL(Spi::transfer(0x00));
 	Cs::set();
 	CO_END_RETURN(value);
 }
@@ -466,10 +473,10 @@ CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_
 	// wait for Miso to go low
 	// FIXME: see `readRegister`
 	CO_WAIT_UNTIL(!Miso::read());
-	CO_CALL(Spi::writeRead(
+	CO_CALL(Spi::transfer(
 		static_cast<uint8_t>(reg) |
 		static_cast<uint8_t>(TransferMode::WriteSingleByte)));
-	CO_CALL(Spi::writeRead(value));
+	CO_CALL(Spi::transfer(value));
 	Cs::set();
 	CO_END();
 }
@@ -485,11 +492,11 @@ CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_
 	// wait for Miso to go low
 	// FIXME: see `readRegister`
 	CO_WAIT_UNTIL(!Miso::read());
-	CO_CALL(Spi::writeRead(
+	CO_CALL(Spi::transfer(
 		static_cast<uint8_t>(reg) |
 		static_cast<uint8_t>(TransferMode::WriteBurst)));
 	for(ii = 0; ii < length; ++ii) {
-		CO_CALL(Spi::writeRead(values[ii]));
+		CO_CALL(Spi::transfer(values[ii]));
 	}
 	Cs::set();
 	CO_END();
@@ -505,7 +512,7 @@ CC1101<Configuration>::writeCommand(void *ctx, CC1101Base::Command command)
 	// wait for Miso to go low
 	// FIXME: see `readRegister`
 	CO_WAIT_UNTIL(!Miso::read());
-	CO_CALL(Spi::writeRead(static_cast<uint8_t>(command)));
+	CO_CALL(Spi::transfer(static_cast<uint8_t>(command)));
 	Cs::set();
 	CO_END();
 }
