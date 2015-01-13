@@ -16,7 +16,7 @@ typedef GpioOutputD15 LedBlue;		// User LED 6
 
 typedef LedBlue Led;
 
-xpcc::IODeviceWrapper< Usart2 > loggerDevice;
+xpcc::IODeviceWrapper<Usart2, xpcc::IOBuffer::BlockIfFull> loggerDevice;
 xpcc::log::Logger xpcc::log::error(loggerDevice);
 xpcc::log::Logger xpcc::log::warning(loggerDevice);
 xpcc::log::Logger xpcc::log::info(loggerDevice);
@@ -83,7 +83,7 @@ MAIN_FUNCTION
 					<< data_array[3] << xpcc::endl;
 			}
 			Led::toggle();
-			xpcc::delay_ms(100);
+			xpcc::delayMilliseconds(100);
 		}
 
 	} else {
@@ -162,7 +162,7 @@ MAIN_FUNCTION
 	while (1)
 	{
 		Led::toggle();
-		xpcc::delay_ms(100);
+		xpcc::delayMilliseconds(100);
 	}
 
 

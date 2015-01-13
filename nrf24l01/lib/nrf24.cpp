@@ -85,9 +85,9 @@ void nrf24_config(uint8_t channel, uint8_t pay_length)
 void nrf24_rx_address(const uint8_t * adr) 
 {
     Ce::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     nrf24_writeRegister(RX_ADDR_P1,adr,nrf24_ADDR_LEN);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     Ce::set();
 }
 
@@ -137,13 +137,13 @@ uint8_t nrf24_payloadLength()
 {
     uint8_t status;
     Csn::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     spi_transfer(R_RX_PL_WID);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     status = spi_transfer(0x00);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     Csn::set();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     return status;
 }
 
@@ -152,19 +152,19 @@ void nrf24_getData(uint8_t* data)
 {
     /* Pull down chip select */
     Csn::reset();                               
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Send cmd to read rx payload */
     spi_transfer( R_RX_PAYLOAD );
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Read payload */
     nrf24_transferSync(data,data,payload_len);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Pull up chip select */
     Csn::set();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Reset status register */
     nrf24_configRegister(STATUS,(1<<RX_DR));   
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
 }
 
 /* Returns the number of retransmissions occured for the last message */
@@ -182,37 +182,37 @@ void nrf24_send(uint8_t* value)
 {    
     /* Go to Standby-I first */
     Ce::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Set to transmitter mode , Power up if needed */
     nrf24_powerUpTx();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Do we really need to flush TX fifo each time ? */
     #if 1
         /* Pull down chip select */
         Csn::reset();           
-        xpcc::delay_ms(1);
+        xpcc::delayMilliseconds(1);
         /* Write cmd to flush transmit FIFO */
         spi_transfer(FLUSH_TX);     
-        xpcc::delay_ms(1);
+        xpcc::delayMilliseconds(1);
         /* Pull up chip select */
         Csn::set();                    
     #endif 
-        xpcc::delay_ms(1);
+        xpcc::delayMilliseconds(1);
     /* Pull down chip select */
     Csn::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Write cmd to write payload */
     spi_transfer(W_TX_PAYLOAD);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Write payload */
     nrf24_transmitSync(value,payload_len);   
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Pull up chip select */
     Csn::set();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     /* Start the transmission */
     Ce::set();    
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
 }
 
 uint8_t nrf24_isSending()
@@ -236,11 +236,11 @@ uint8_t nrf24_getStatus()
 {
     uint8_t rv;
     Csn::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     rv = spi_transfer(NOP);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     Csn::set();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     return rv;
 }
 
@@ -291,7 +291,7 @@ void nrf24_powerUpTx()
 void nrf24_powerDown()
 {
     Ce::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     nrf24_configRegister(CONFIG,nrf24_CONFIG);
 }
 
@@ -300,7 +300,7 @@ uint8_t spi_transfer(uint8_t tx)
 {
     uint8_t i = 0;
     uint8_t rx = 0;    
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     Sck::reset();
 
     for(i=0;i<8;i++)
@@ -314,9 +314,9 @@ uint8_t spi_transfer(uint8_t tx)
         {
             Mosi::reset();
         }
-        xpcc::delay_ms(1);
+        xpcc::delayMilliseconds(1);
         Sck::set();
-        xpcc::delay_ms(1);
+        xpcc::delayMilliseconds(1);
 
         rx = rx << 1;
         if(Miso::read())
@@ -325,7 +325,7 @@ uint8_t spi_transfer(uint8_t tx)
         }
 
         Sck::reset();                
-        xpcc::delay_ms(1);
+        xpcc::delayMilliseconds(1);
     }
 
     return rx;
@@ -359,11 +359,11 @@ void nrf24_transmitSync(const uint8_t* dataout,uint8_t len)
 void nrf24_configRegister(uint8_t reg, uint8_t value)
 {
     Csn::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     spi_transfer(W_REGISTER | (REGISTER_MASK & reg));
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     spi_transfer(value);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     Csn::set();
 }
 
@@ -371,11 +371,11 @@ void nrf24_configRegister(uint8_t reg, uint8_t value)
 void nrf24_readRegister(uint8_t reg, uint8_t* value, uint8_t len)
 {
     Csn::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     spi_transfer(R_REGISTER | (REGISTER_MASK & reg));
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     nrf24_transferSync(value,value,len);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     Csn::set();
 }
 
@@ -383,10 +383,10 @@ void nrf24_readRegister(uint8_t reg, uint8_t* value, uint8_t len)
 void nrf24_writeRegister(uint8_t reg, const uint8_t* value, uint8_t len) 
 {
     Csn::reset();
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     spi_transfer(W_REGISTER | (REGISTER_MASK & reg));
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     nrf24_transmitSync(value,len);
-    xpcc::delay_ms(1);
+    xpcc::delayMilliseconds(1);
     Csn::set();
 }
