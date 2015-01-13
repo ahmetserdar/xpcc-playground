@@ -18,7 +18,7 @@ env.Defines()
 
 # build xpcc_git_info.hpp and xpcc_project_info.hpp file
 env.GitInfoHeader()
-env.ProjectInfoHeader()
+env.BuildInfoHeader()
 
 env.Alias('size', env.Size(program))
 env.Alias('symbols', env.Symbols(program))

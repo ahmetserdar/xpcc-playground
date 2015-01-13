@@ -10,7 +10,7 @@
 #include <xpcc/debug/logger.hpp>
 #include "../../xpcc/examples/stm32f4_discovery/stm32f4_discovery.hpp"
 
-xpcc::IODeviceWrapper<Usart2> loggerDevice;
+xpcc::IODeviceWrapper<Usart2, xpcc::IOBuffer::BlockIfFull> loggerDevice;
 xpcc::log::Logger xpcc::log::debug(loggerDevice);
 xpcc::log::Logger xpcc::log::info(loggerDevice);
 xpcc::log::Logger xpcc::log::warning(loggerDevice);
@@ -21,13 +21,22 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #define	XPCC_LOG_LEVEL xpcc::log::DEBUG
 
 #include <xpcc_git_info.hpp>
-#include <xpcc_project_info.hpp>
+#include <xpcc_build_info.hpp>
 
 typedef GpioOutputB10 MP45DT02Clock;
 typedef GpioInputC3 MP45DT02Dout;
 
+
+
+// 32 bits are sampled with 32 kHz
+// =>  second of samples => 32000 * 32
+static constexpr size_t NumberOf1BitSamplesPerSecond = 32000 * 32;
+// sample for 1/ 50 of a second => ten periods of 500Hz test wave
+static constexpr size_t SampleLength = NumberOf1BitSamplesPerSecond / 50;
+
+
 size_t buffer_index;
-uint16_t buffer[4000];
+uint16_t buffer[SampleLength / 16];
 bool sampling_in_progress;
 
 static constexpr uint32_t PllM = Stm32F2F4PllSettings<MHz192, MHz8, MHz168, MHz48>::PllM;
@@ -40,13 +49,13 @@ static inline void
 initializeI2s()
 {
 	// connect pins
-	GpioOutputB10::connect(SpiSimpleMaster2::Sck);
+	GpioOutputB10::connect(SpiMaster2::Sck);
 	// technically used as an input here, but since the peripheral decides
 	// on data direction it does not matter
-	GpioOutputC3::connect(SpiSimpleMaster2::Mosi);
+	GpioOutputC3::connect(SpiMaster2::Mosi);
 
 	// TODO: remove when debugging is over
-	GpioOutputB12::connect(SpiSimpleMaster2::Nss);
+	GpioOutputB12::connect(SpiMaster2::Nss);
 
 
 	// generate i2s clock with dedicated PLL
@@ -93,10 +102,10 @@ static inline void
 startI2s()
 {
 	buffer_index = 0;
-	sampling_in_progress = true;
 	//uint16_t temp = SPI2->DR;	// make sure that receive register is empty
 	SpiHal2::enableInterrupt(SpiHal2::Interrupt::RxBufferNotEmpty);
 	SPI2->I2SCFGR |= SPI_I2SCFGR_I2SE;
+	sampling_in_progress = true;
 }
 
 
@@ -116,6 +125,20 @@ SPI2_IRQHandler()
 	}
 }
 
+static inline void
+printBitstream()
+{
+	for(size_t ii = 0; ii < (sizeof(buffer)/sizeof(buffer[0])); ii++) {
+//	for(size_t ii = 0; ii < 8; ii++) {
+		uint16_t value = buffer[ii];
+		for(unsigned int bb = 0; bb < sizeof(buffer[0])*8; bb++) {
+			if(value & (1<<15)) XPCC_LOG_INFO << "1";
+			else                XPCC_LOG_INFO << "0";
+			value = (value << 1) & (0xffff);
+		}
+	}
+}
+
 MAIN_FUNCTION
 {
 	defaultSystemClock::enable();
@@ -126,9 +149,12 @@ MAIN_FUNCTION
 	Usart2::initialize<defaultSystemClock, 115200>(10);
 
 	// Print project information
-	XPCC_LOG_INFO << "[log-start] " XPCC_PROJECT_NAME ": " __DATE__ "@" __TIME__ << xpcc::endl;
-	XPCC_LOG_INFO << "[git] " XPCC_GIT_SHA_ABBR " " XPCC_GIT_SUBJECT << xpcc::endl;
-	XPCC_LOG_INFO << "[git] " XPCC_GIT_AUTHOR "<" XPCC_GIT_AUTHOR_EMAIL ">" << xpcc::endl;
+	XPCC_LOG_INFO << "[log-start] " XPCC_BUILD_PROJECT_NAME << xpcc::endl;
+	XPCC_LOG_INFO << "[build] " __DATE__            " @ " __TIME__           << xpcc::endl;
+	XPCC_LOG_INFO << "[build] " XPCC_BUILD_USER     " @ " XPCC_BUILD_MACHINE << xpcc::endl;
+	XPCC_LOG_INFO << "[build] " XPCC_BUILD_COMPILER " @ " XPCC_BUILD_OS      << xpcc::endl;
+	XPCC_LOG_INFO << "[git] " XPCC_GIT_SHA_ABBR " "  XPCC_GIT_SUBJECT          << xpcc::endl;
+	XPCC_LOG_INFO << "[git] " XPCC_GIT_AUTHOR   " <" XPCC_GIT_AUTHOR_EMAIL ">" << xpcc::endl;
 
 	LedBlue::setOutput(xpcc::Gpio::Low);
 
@@ -136,12 +162,43 @@ MAIN_FUNCTION
 
 	XPCC_LOG_DEBUG << "initialized i2s" << xpcc::endl;
 
+	// take some samples before output
+//	for(int ii = 0; ii < 4; ii++) {
+//		startI2s();
+//		while(sampling_in_progress)
+//			;
+//	}
 	startI2s();
-
-	XPCC_LOG_DEBUG << "started i2s" << xpcc::endl;
-
 	while(sampling_in_progress)
 		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+	startI2s();
+	while(sampling_in_progress)
+		;
+
 
 	XPCC_LOG_DEBUG << "sampled i2s" << xpcc::endl;
 
@@ -153,6 +210,9 @@ MAIN_FUNCTION
 	XPCC_LOG_DEBUG << xpcc::bin << buffer[5] << xpcc::endl;
 	XPCC_LOG_DEBUG << xpcc::bin << buffer[6] << xpcc::endl;
 	XPCC_LOG_DEBUG << xpcc::bin << buffer[7] << xpcc::endl;
+
+	XPCC_LOG_INFO << xpcc::endl << xpcc::endl;
+	printBitstream();
 
 	while (1)
 	{
