@@ -11,7 +11,7 @@
 #include "../../xpcc/examples/stm32f3_discovery/stm32f3_discovery.hpp"
 
 // Create an IODeviceWrapper around the Uart Peripheral we want to use
-xpcc::IODeviceWrapper< Usart2 > loggerDevice;
+xpcc::IODeviceWrapper<Usart2, xpcc::IOBuffer::BlockIfFull> loggerDevice;
 
 // Set all four logger streams to use the UART
 xpcc::log::Logger xpcc::log::debug(loggerDevice);
@@ -24,7 +24,7 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #define	XPCC_LOG_LEVEL xpcc::log::DEBUG
 
 #include <xpcc_git_info.hpp>
-#include <xpcc_project_info.hpp>
+#include <xpcc_build_info.hpp>
 
 
 #include <xpcc/processing/timeout.hpp>
@@ -34,6 +34,9 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 
 
 static uint8_t data[] = {
+	0x00, 0x55, 0xff,
+	0x00, 0x55, 0xff
+/*
 	0x55, 0x55, 0x55, 0x55, 0x55,
 	0x55, 0x55, 0x55, 0x55, 0x55,
 	0x55, 0x55, 0x55, 0x55, 0x55,
@@ -46,6 +49,7 @@ static uint8_t data[] = {
 	0x55, 0x55, 0x55, 0x55, 0x55,
 	0x55, 0x55, 0x55, 0x55, 0x55,
 	0x55, 0x55, 0x55, 0x55, 0x55
+*/
 };
 
 
@@ -104,7 +108,7 @@ public:
 			0x83, 0x0a,
 			Radio::ChannelBandwidth::XOscOver256));			// 0xca, 0x83
 		PT_CALL(radio.configureModem2(this,
-			Radio::ModulationFormat::GFsk,
+			Radio::ModulationFormat::Fsk2,
 			Radio::SyncMode::SyncWord30OutOf32Bits,
 			Radio::ManchesterEncoding::Disabled,
 			Radio::DigitalDcBlockingFilter::Disabled));		// 0x93
@@ -135,6 +139,7 @@ public:
 		PT_CALL(radio.configureTest(this,
 			Radio::VcoSelectionCalibration::Disabled));		// 0x7f, 0x3f, 0x81, 0x35, 0x09
 
+			XPCC_LOG_DEBUG << XPCC_FILE_INFO << "Configured cc1101." << xpcc::endl;
 
 		// main loop
 		while(true){
@@ -151,11 +156,11 @@ public:
 
 public:
 	struct CC1101Config {
-		typedef SpiSimpleMaster3 SpiMaster;
-		typedef GpioOutputA15    Cs;
-		typedef GpioInputB4      Miso;
-		typedef GpioInputD6      Gdo0;
-		typedef GpioInputD4      Gdo2;
+		typedef SpiMaster3    SpiMaster;
+		typedef GpioOutputA15 Cs;
+		typedef GpioInputB4   Miso;
+		typedef GpioInputD6   Gdo0;
+		typedef GpioInputD4   Gdo2;
 	};
 
 private:
@@ -183,17 +188,21 @@ MAIN_FUNCTION
 	Usart2::initialize<defaultSystemClock, 115200>(10);
 
 	// Print project information
-	XPCC_LOG_INFO << "[log-start] " XPCC_PROJECT_NAME ": " __DATE__ "@" __TIME__ << xpcc::endl;
-	XPCC_LOG_INFO << "[git] " XPCC_GIT_SHA_ABBR " " XPCC_GIT_SUBJECT << xpcc::endl;
-	XPCC_LOG_INFO << "[git] " XPCC_GIT_AUTHOR "<" XPCC_GIT_AUTHOR_EMAIL ">" << xpcc::endl;
+	XPCC_LOG_INFO << "[log-start] " XPCC_BUILD_PROJECT_NAME << xpcc::endl;
+	XPCC_LOG_INFO << "[build] " __DATE__            " @ " __TIME__           << xpcc::endl;
+	XPCC_LOG_INFO << "[build] " XPCC_BUILD_USER     " @ " XPCC_BUILD_MACHINE << xpcc::endl;
+	XPCC_LOG_INFO << "[build] " XPCC_BUILD_COMPILER " @ " XPCC_BUILD_OS      << xpcc::endl;
+	XPCC_LOG_INFO << "[git] " XPCC_GIT_SHA_ABBR " "  XPCC_GIT_SUBJECT          << xpcc::endl;
+	XPCC_LOG_INFO << "[git] " XPCC_GIT_AUTHOR   " <" XPCC_GIT_AUTHOR_EMAIL ">" << xpcc::endl;
+
 
 	// Initialize Spi
 	MainThread::CC1101Config::Cs::setOutput(xpcc::Gpio::High);
-	MainThread::CC1101Config::Miso::connect(SpiSimpleMaster3::Miso);
-	GpioOutputB5::connect(SpiSimpleMaster3::Mosi);
-	GpioOutputB3::connect(SpiSimpleMaster3::Sck);
-	SpiSimpleMaster3::initialize<defaultSystemClock, 1125 * kHz1>();
-	//SpiSimpleMaster3::initialize<defaultSystemClock, 140625>();
+	MainThread::CC1101Config::Miso::connect(SpiMaster3::Miso);
+	GpioOutputB5::connect(SpiMaster3::Mosi);
+	GpioOutputB3::connect(SpiMaster3::Sck);
+	SpiMaster3::initialize<defaultSystemClock, 1125 * kHz1>();
+	//SpiMaster3::initialize<defaultSystemClock, 140625>();
 
 	// Initialize Gdos
 	MainThread::CC1101Config::Gdo0::setInput();
