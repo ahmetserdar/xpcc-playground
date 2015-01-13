@@ -11,16 +11,16 @@
 
 static inline void longTone() {
 	Timer4::start();
-	xpcc::delay_ms(700);
+	xpcc::delayMilliseconds(700);
 	Timer4::pause();
-	xpcc::delay_ms(200);
+	xpcc::delayMilliseconds(200);
 }
 
 static inline void shortTone() {
 	Timer4::start();
-	xpcc::delay_ms(300);
+	xpcc::delayMilliseconds(300);
 	Timer4::pause();
-	xpcc::delay_ms(200);
+	xpcc::delayMilliseconds(200);
 }
 
 // ----------------------------------------------------------------------------
@@ -44,18 +44,18 @@ MAIN_FUNCTION
 	{
 		longTone();
 		shortTone();
-		xpcc::delay_ms(700);
+		xpcc::delayMilliseconds(700);
 		longTone();
 		shortTone();
 		shortTone();
 		shortTone();
-		xpcc::delay_ms(700);
+		xpcc::delayMilliseconds(700);
 		longTone();
 		shortTone();
 		longTone();
 		shortTone();
-		xpcc::delay_ms(700);
-		xpcc::delay_ms(2000);
+		xpcc::delayMilliseconds(700);
+		xpcc::delayMilliseconds(2000);
 	}
 
 	return 0;

@@ -11,7 +11,7 @@
 #include "../../xpcc/examples/stm32f3_discovery/stm32f3_discovery.hpp"
 
 // Create an IODeviceWrapper around the Uart Peripheral we want to use
-xpcc::IODeviceWrapper< Usart2 > loggerDevice;
+xpcc::IODeviceWrapper<Usart2, xpcc::IOBuffer::BlockIfFull> loggerDevice;
 
 // Set all four logger streams to use the UART
 xpcc::log::Logger xpcc::log::debug(loggerDevice);
@@ -135,7 +135,7 @@ MAIN_FUNCTION
 	while (1)
 	{
 		LedSouth::toggle();
-		xpcc::delay_ms(500);
+		xpcc::delayMilliseconds(500);
 	}
 
 	return 0;
