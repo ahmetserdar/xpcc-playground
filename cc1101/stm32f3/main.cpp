@@ -35,7 +35,8 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 
 static uint8_t data[] = {
 	0x00, 0x55, 0xff,
-	0x00, 0x55, 0xff
+	0x00, 0x55, 0xff,
+	0x00, 0x00, 0x00, 0x00	// space for packet count
 /*
 	0x55, 0x55, 0x55, 0x55, 0x55,
 	0x55, 0x55, 0x55, 0x55, 0x55,
@@ -144,8 +145,14 @@ public:
 		// main loop
 		while(true){
 			// send some data
-			PT_CALL(radio.sendData(this, data, sizeof(data)));
+			PT_CALL(radio.sendData(this, data, DataSize));
 			XPCC_LOG_INFO << ".";
+			// update packet count
+			packet_count++;
+			data[DataSize-4] = (packet_count >> 8 * 3) & 0xff;
+			data[DataSize-3] = (packet_count >> 8 * 2) & 0xff;
+			data[DataSize-2] = (packet_count >> 8 * 1) & 0xff;
+			data[DataSize-1] = (packet_count >> 8 * 0) & 0xff;
 			// timeout
 			timer.restart(1);
 			PT_WAIT_UNTIL(timer.isExpired());
@@ -168,6 +175,8 @@ private:
 	xpcc::Timeout<> timer;
 	xpcc::PeriodicTimer<> blinkTimer;
 	Radio radio;
+	uint32_t packet_count;
+	static constexpr size_t DataSize = sizeof(data);
 };
 
 MainThread mainThread;
