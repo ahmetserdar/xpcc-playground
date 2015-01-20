@@ -53,6 +53,13 @@ static uint8_t data[] = {
 */
 };
 
+enum class Transmission
+{
+	Fsk34k,
+	GFsk250k,
+};
+
+static constexpr Transmission Settings = Transmission::GFsk250k;
 
 class MainThread : public xpcc::pt::Protothread
 {
@@ -101,20 +108,34 @@ public:
 			Radio::PacketLengthConfig::Variable));			// 0x05
 		PT_CALL(radio.configureAddress(this, 0xff));		// 0xff
 		PT_CALL(radio.configureChannelNumber(this, 0x00));	// 0x00
-		PT_CALL(radio.configureIfFrequency(this, 0x08));	// 0x08
+		if(Settings == Transmission::Fsk34k) {
+			PT_CALL(radio.configureIfFrequency(this, 0x08));	// 0x08
+		} else if(Settings == Transmission::GFsk250k) {
+			PT_CALL(radio.configureIfFrequency(this, 0x0C));
+		}
 		PT_CALL(radio.configureFrequencyOffset(this, 0x00));// 0x00
 		// 433MHz
 		PT_CALL(radio.configureBaseFrequency(this, 0x10a762));// 0x10, 0xa7, 0x62
-		PT_CALL(radio.configureDataRateAndBandwidth(this,
-			0x83, 0x0a,
-			Radio::ChannelBandwidth::XOscOver256));			// 0xca, 0x83
+		if(Settings == Transmission::Fsk34k) {
+			PT_CALL(radio.configureDataRateAndBandwidth(this,
+				0x83, 0x0a,
+				Radio::ChannelBandwidth::XOscOver256));			// 0xca, 0x83
+		} else if(Settings == Transmission::GFsk250k) {
+			PT_CALL(radio.configureDataRateAndBandwidth(this,
+				0x3b, 0x0d,
+				Radio::ChannelBandwidth::XOscOver48));
+		}
 		PT_CALL(radio.configureModem2(this,
-			Radio::ModulationFormat::Fsk2,
+			Radio::ModulationFormat::GFsk,
 			Radio::SyncMode::SyncWord30OutOf32Bits,
 			Radio::ManchesterEncoding::Disabled,
 			Radio::DigitalDcBlockingFilter::Disabled));		// 0x93
 		PT_CALL(radio.configureModem1(this, 0xf8, 0x02));	// 0x22, 0xf8
-		PT_CALL(radio.configureDeviation(this, 5, 3));		// 0x35
+		if(Settings == Transmission::Fsk34k) {
+			PT_CALL(radio.configureDeviation(this, 5, 3));		// 0x35
+		} else if(Settings == Transmission::GFsk250k) {
+			PT_CALL(radio.configureDeviation(this, 2, 6));
+		}
 		PT_CALL(radio.configureMainRadioFsm2(this, 7));		// 0x07
 		PT_CALL(radio.configureMainRadioFsm1(this,
 			Radio::CcaMode::UnlessReceivingPacket,
