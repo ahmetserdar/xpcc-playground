@@ -336,31 +336,31 @@ public:
 
 	/// Sends data from a max 61 byte long buffer
 	inline xpcc::co::Result<void>
-	sendData(void *ctx, uint8_t *buffer, size_t len);
+	sendData(void *ctx, const uint8_t *buffer, const size_t len);
 
 	//-------------------------------------------------------------------------
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>
-	readRegister(void *ctx, Register reg);
+	readRegister(void *ctx, const Register reg);
 
 	/// Reads values from `length` registers starting at the `reg`
 	///
 	/// The output will be written to memory starting at `values`.
 	/// Make sure that `length` bytes of memory are available.
 	xpcc::co::Result<void>
-	readRegister(void *ctx, Register reg, uint8_t* values, size_t length);
+	readRegister(void *ctx, const Register reg, uint8_t* values, const size_t length);
 
 	/// Writes `value` to `reg`.
 	xpcc::co::Result<void>
-	writeRegister(void *ctx, Register reg, uint8_t value);
+	writeRegister(void *ctx, const Register reg, const uint8_t value);
 
 	/// Writes `length` values to registers starting at `reg`.
 	xpcc::co::Result<void>
-	writeRegister(void *ctx, Register reg, uint8_t* values, size_t length);
+	writeRegister(void *ctx, const Register reg, const uint8_t* values, const size_t length);
 
 	/// Sends command to the CC1101 chip.
 	xpcc::co::Result<void>
-	writeCommand(void *ctx, Command command);
+	writeCommand(void *ctx, const Command command);
 
 private:
 	/// Spi Master interface the cc1101 chip is connected to

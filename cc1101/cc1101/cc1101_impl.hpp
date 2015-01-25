@@ -407,7 +407,7 @@ CC1101<Configuration>::configureTest(void *ctx,
 
 template<typename Configuration>
 xpcc::co::Result<void>
-CC1101<Configuration>::sendData(void *ctx, uint8_t *buffer, size_t len)
+CC1101<Configuration>::sendData(void *ctx, const uint8_t *buffer, const size_t len)
 {
 	CO_BEGIN(ctx);
 	// Go Into Rx State
@@ -434,7 +434,7 @@ CC1101<Configuration>::sendData(void *ctx, uint8_t *buffer, size_t len)
 //-----------------------------------------------------------------------------
 template<typename Configuration>
 xpcc::co::Result<uint8_t>
-CC1101<Configuration>::readRegister(void *ctx, CC1101Base::Register reg)
+CC1101<Configuration>::readRegister(void *ctx, const CC1101Base::Register reg)
 {
 	static uint8_t value;
 	CO_BEGIN(ctx);
@@ -455,7 +455,7 @@ CC1101<Configuration>::readRegister(void *ctx, CC1101Base::Register reg)
 
 template<typename Configuration>
 xpcc::co::Result<void>
-CC1101<Configuration>::readRegister(void *ctx, CC1101Base::Register reg, uint8_t* values, size_t length)
+CC1101<Configuration>::readRegister(void *ctx, const CC1101Base::Register reg, uint8_t* values, const size_t length)
 {
 	CO_BEGIN(ctx);
 
@@ -466,7 +466,7 @@ CC1101<Configuration>::readRegister(void *ctx, CC1101Base::Register reg, uint8_t
 
 template<typename Configuration>
 xpcc::co::Result<void>
-CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_t value)
+CC1101<Configuration>::writeRegister(void *ctx, const CC1101Base::Register reg, const uint8_t value)
 {
 	CO_BEGIN(ctx);
 	Cs::reset();
@@ -484,7 +484,7 @@ CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_
 
 template<typename Configuration>
 xpcc::co::Result<void>
-CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_t* values, size_t length)
+CC1101<Configuration>::writeRegister(void *ctx, const CC1101Base::Register reg, const uint8_t* values, const size_t length)
 {
 	static size_t ii;
 	CO_BEGIN(ctx);
@@ -505,7 +505,7 @@ CC1101<Configuration>::writeRegister(void *ctx, CC1101Base::Register reg, uint8_
 
 template<typename Configuration>
 xpcc::co::Result<void>
-CC1101<Configuration>::writeCommand(void *ctx, CC1101Base::Command command)
+CC1101<Configuration>::writeCommand(void *ctx, const CC1101Base::Command command)
 {
 	CO_BEGIN(ctx);
 	Cs::reset();
