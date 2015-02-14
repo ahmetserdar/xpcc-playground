@@ -27,8 +27,8 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #include <xpcc_build_info.hpp>
 
 
-#include <xpcc/processing/timeout.hpp>
-#include <xpcc/processing/periodic_timer.hpp>
+#include <xpcc/processing/timer/timeout.hpp>
+#include <xpcc/processing/timer/periodic_timer.hpp>
 #include <xpcc/processing/protothread.hpp>
 #include "../cc1101/cc1101.hpp"
 
@@ -75,7 +75,7 @@ public:
 	bool
 	run()
 	{
-		if(blinkTimer.isExpired()) {
+		if(blinkTimer.execute()) {
 			LedSouth::toggle();
 		}
 
@@ -178,8 +178,8 @@ public:
 			data[DataSize-2] = (packet_count >> 8 * 1) & 0xff;
 			data[DataSize-1] = (packet_count >> 8 * 0) & 0xff;
 			// timeout
-			timer.restart(1);
-			PT_WAIT_UNTIL(timer.isExpired());
+			timeout.restart(1);
+			PT_WAIT_UNTIL(timeout.execute());
 		}
 
 		PT_END();
@@ -196,8 +196,8 @@ public:
 
 private:
 	typedef xpcc::radio::CC1101<CC1101Config> Radio;
-	xpcc::Timeout<> timer;
-	xpcc::PeriodicTimer<> blinkTimer;
+	xpcc::Timeout timeout;
+	xpcc::PeriodicTimer blinkTimer;
 	Radio radio;
 	uint32_t packet_count;
 	static constexpr size_t DataSize = sizeof(data);
