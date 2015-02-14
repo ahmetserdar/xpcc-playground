@@ -20,11 +20,11 @@ MAIN_FUNCTION
 	Led::setOutput(xpcc::Gpio::Low);
 
 	// Enable DAC Clock
-	RCC->APB1ENR |= RCC_APB1ENR_DACEN;
+	RCC->APB1ENR |= RCC_APB1ENR_DAC1EN;
 
 	// Reset DAC
-	RCC->APB1RSTR |=  RCC_APB1RSTR_DACRST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_DACRST;
+	RCC->APB1RSTR |=  RCC_APB1RSTR_DAC1RST;
+	RCC->APB1RSTR &= ~RCC_APB1RSTR_DAC1RST;
 
 	// setAnalog for DAC Output Pin....
 	GpioInputA4::connect(Adc2::Channel1);
