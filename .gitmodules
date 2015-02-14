@@ -1,6 +1,6 @@
 [submodule "xpcc"]
 	path = xpcc
-	url = https://github.com/ekiwi/xpcc.git
+	url = https://github.com/roboterclubaachen/xpcc.git
 [submodule "xpcc-doc"]
 	path = xpcc-doc
 	url = https://github.com/roboterclubaachen/xpcc-doc.git
