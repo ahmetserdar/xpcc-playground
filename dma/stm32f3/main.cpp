@@ -78,7 +78,7 @@ MAIN_FUNCTION
 	Dma1::enable();
 	Dma1::Stream6::stop();
 	Dma1::Stream6::configure(SampleLength, DmaBase::Priority::VeryHigh);
-	Dma1::Stream6::setPeripheralSource(const_cast<uint16_t*>(&(GPIOD->IDR)));
+	Dma1::Stream6::setPeripheralSource(reinterpret_cast<uint16_t*>(const_cast<uint32_t*>(&(GPIOD->IDR))));
 	Dma1::Stream6::setMemoryDestination(&samples[0]);
 
 	// Start Timer1
