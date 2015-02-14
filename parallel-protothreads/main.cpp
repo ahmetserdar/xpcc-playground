@@ -5,7 +5,7 @@
 #define	XPCC_LOG_LEVEL xpcc::log::INFO
 
 
-#include <xpcc/processing/timeout.hpp>
+#include <xpcc/processing/timer/timeout.hpp>
 #include <xpcc/processing/protothread.hpp>
 #include <cstdlib>	// std::rand
 
@@ -40,7 +40,7 @@ public:
 		PT_BEGIN();
 		while(true) {
 			timeout.restart((std::rand() / (RAND_MAX / 500)) + 250);
-			PT_WAIT_UNTIL(timeout.isExpired());
+			PT_WAIT_UNTIL(timeout.execute());
 			xout << "\033[3" << static_cast<uint8_t>(color) << "m"
 			     << name << ": " << number
 			     << "\033[0m" << xpcc::endl;
@@ -53,7 +53,7 @@ private:
 	const char* name;
 	Color color;
 	int number;
-	xpcc::Timeout<> timeout;
+	xpcc::Timeout timeout;
 };
 
 class
