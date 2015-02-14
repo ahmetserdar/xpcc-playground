@@ -1,6 +1,8 @@
 xpcc-playground
 ===============
 
+[![Build Status](https://travis-ci.org/ekiwi/xpcc-playground.svg?branch=master)](https://travis-ci.org/ekiwi/xpcc-playground)
+
 Some random projects, mostly for STM32 microcontrollers, that I wrote using
 the [xpcc](https://github.com/roboterclubaachen/xpcc) library.
 They aren't exactly examples, but might still be a good starting point
