@@ -83,7 +83,7 @@ public:
 
 		// try to initialize the device
 		static Radio::InitializeError e;
-		e = PT_CALL(radio.initialize(this));
+		e = PT_CALL(radio.initialize());
 		if(e != Radio::InitializeError::None) {
 			XPCC_LOG_ERROR << XPCC_FILE_INFO;
 			XPCC_LOG_ERROR << "Error trying to initialize the cc1101: ";
@@ -92,76 +92,76 @@ public:
 			XPCC_LOG_DEBUG << XPCC_FILE_INFO << "Initialized cc1101." << xpcc::endl;
 		}
 
-		PT_CALL(radio.configureGdo(this,
+		PT_CALL(radio.configureGdo(
 			Radio::Gdo::Gdo0,
 			Radio::GdoSignalSelection::SyncWord));			// 0x06
-		PT_CALL(radio.configureFifoThreshold(this,
+		PT_CALL(radio.configureFifoThreshold(
 			Radio::FifoThreshold::Tx33Rx32,
 			Radio::AdcRetention::RxFilterAbove325kHz));		// 0x07
-		PT_CALL(radio.configureSyncWord(this, 0xb547));		// 0xb5, 0x47
-		PT_CALL(radio.configurePacketLength(this, 0x3d));	// 0x3d
-		PT_CALL(radio.configurePacketAutomationControl1(this,
+		PT_CALL(radio.configureSyncWord(0xb547));		// 0xb5, 0x47
+		PT_CALL(radio.configurePacketLength(0x3d));	// 0x3d
+		PT_CALL(radio.configurePacketAutomationControl1(
 			0, Radio::CrcAutoFlush::Disabled,
 			Radio::AppendStatus::Enabled,
 			Radio::AddressCheck::Broadcast00));				// 0x06
-		PT_CALL(radio.configurePacketAutomationControl0(this,
+		PT_CALL(radio.configurePacketAutomationControl0(
 			Radio::DataWhitening::Disabled,
 			Radio::PacketFormat::Normal,	// TODO: change to RandomTx
 			Radio::CrcCalculation::Enabled,
 			Radio::PacketLengthConfig::Variable));			// 0x05
-		PT_CALL(radio.configureAddress(this, 0xff));		// 0xff
-		PT_CALL(radio.configureChannelNumber(this, 0x00));	// 0x00
+		PT_CALL(radio.configureAddress(0xff));		// 0xff
+		PT_CALL(radio.configureChannelNumber(0x00));	// 0x00
 		if(Settings == Transmission::Fsk34k) {
-			PT_CALL(radio.configureIfFrequency(this, 0x08));	// 0x08
+			PT_CALL(radio.configureIfFrequency(0x08));	// 0x08
 		} else if(Settings == Transmission::GFsk250k) {
-			PT_CALL(radio.configureIfFrequency(this, 0x0C));
+			PT_CALL(radio.configureIfFrequency(0x0C));
 		}
-		PT_CALL(radio.configureFrequencyOffset(this, 0x00));// 0x00
+		PT_CALL(radio.configureFrequencyOffset(0x00));// 0x00
 		// 433MHz
-		PT_CALL(radio.configureBaseFrequency(this, 0x10a762));// 0x10, 0xa7, 0x62
+		PT_CALL(radio.configureBaseFrequency(0x10a762));// 0x10, 0xa7, 0x62
 		if(Settings == Transmission::Fsk34k) {
-			PT_CALL(radio.configureDataRateAndBandwidth(this,
+			PT_CALL(radio.configureDataRateAndBandwidth(
 				0x83, 0x0a,
 				Radio::ChannelBandwidth::XOscOver256));			// 0xca, 0x83
 		} else if(Settings == Transmission::GFsk250k) {
-			PT_CALL(radio.configureDataRateAndBandwidth(this,
+			PT_CALL(radio.configureDataRateAndBandwidth(
 				0x3b, 0x0d,
 				Radio::ChannelBandwidth::XOscOver48));
 		}
-		PT_CALL(radio.configureModem2(this,
+		PT_CALL(radio.configureModem2(
 			Radio::ModulationFormat::GFsk,
 			Radio::SyncMode::SyncWord30OutOf32Bits,
 			Radio::ManchesterEncoding::Disabled,
 			Radio::DigitalDcBlockingFilter::Disabled));		// 0x93
-		PT_CALL(radio.configureModem1(this, 0xf8, 0x02));	// 0x22, 0xf8
+		PT_CALL(radio.configureModem1(0xf8, 0x02));	// 0x22, 0xf8
 		if(Settings == Transmission::Fsk34k) {
-			PT_CALL(radio.configureDeviation(this, 5, 3));		// 0x35
+			PT_CALL(radio.configureDeviation(5, 3));		// 0x35
 		} else if(Settings == Transmission::GFsk250k) {
-			PT_CALL(radio.configureDeviation(this, 2, 6));
+			PT_CALL(radio.configureDeviation(2, 6));
 		}
-		PT_CALL(radio.configureMainRadioFsm2(this, 7));		// 0x07
-		PT_CALL(radio.configureMainRadioFsm1(this,
+		PT_CALL(radio.configureMainRadioFsm2(7));		// 0x07
+		PT_CALL(radio.configureMainRadioFsm1(
 			Radio::CcaMode::UnlessReceivingPacket,
 			Radio::RxOffMode::Idle,
 			Radio::TxOffMode::Idle));							// 0x20
-		PT_CALL(radio.configureMainRadioFsm0(this,
+		PT_CALL(radio.configureMainRadioFsm0(
 			Radio::FsAutoCallibration::IdleToRxOrTx));			// 0x18
-		PT_CALL(radio.configureFrequencyOffsetCompensation(this,
+		PT_CALL(radio.configureFrequencyOffsetCompensation(
 			Radio::FocBsCsGate::Disabled, Radio::FocPreK::K3));	// 0x16
-		PT_CALL(radio.configureBitSynchronization(this));		// 0x6c
-		PT_CALL(radio.configureAgc(this,
+		PT_CALL(radio.configureBitSynchronization());		// 0x6c
+		PT_CALL(radio.configureAgc(
 			Radio::MaxDVgaGain::SecondHighestSetting));		// 0x43, 0x40, 0x91
-		PT_CALL(radio.configureEvent0Timeout(this, 0x876b));// 0x87, 0x6b
-		PT_CALL(radio.configureWakeOnRadio(this,
+		PT_CALL(radio.configureEvent0Timeout(0x876b));// 0x87, 0x6b
+		PT_CALL(radio.configureWakeOnRadio(
 			Radio::WorResolution::Period2ToThe15));			// 0xfb
-		PT_CALL(radio.configureRxFrontEnd(this));			// 0x56
-		PT_CALL(radio.configureTxFrontEnd(this));			// 0x10
-		PT_CALL(radio.configureFrequencySynthesizerCalibration321(this,
+		PT_CALL(radio.configureRxFrontEnd());			// 0x56
+		PT_CALL(radio.configureTxFrontEnd());			// 0x10
+		PT_CALL(radio.configureFrequencySynthesizerCalibration321(
 			0xe9, 0x2a, 0x00));								// 0xe9, 0x2a, 0x00
-		PT_CALL(radio.configureFrequencySynthesizerCalibration0(this,
+		PT_CALL(radio.configureFrequencySynthesizerCalibration0(
 			0x1f));											// 0x1f
-		PT_CALL(radio.configureRcOscillator(this));			// 0x41, 0x00
-		PT_CALL(radio.configureTest(this,
+		PT_CALL(radio.configureRcOscillator());			// 0x41, 0x00
+		PT_CALL(radio.configureTest(
 			Radio::VcoSelectionCalibration::Disabled));		// 0x7f, 0x3f, 0x81, 0x35, 0x09
 
 			XPCC_LOG_DEBUG << XPCC_FILE_INFO << "Configured cc1101." << xpcc::endl;
@@ -169,7 +169,7 @@ public:
 		// main loop
 		while(true){
 			// send some data
-			PT_CALL(radio.sendData(this, data, DataSize));
+			PT_CALL(radio.sendData(data, DataSize));
 			XPCC_LOG_INFO << ".";
 			// update packet count
 			packet_count++;

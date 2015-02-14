@@ -79,7 +79,7 @@ CC1101 : protected xpcc::co::NestedCoroutine<2>, public CC1101Base
 public:
 	/// Resets the cc1101 chip and checks PARTNUM and VERSION registers for expected values.
 	xpcc::co::Result<InitializeError>
-	initialize(void *ctx);
+	initialize();
 
 	/// Configures one of the three available output pins by writing to the
 	/// corresponding register.
@@ -94,25 +94,25 @@ public:
 	///
 	/// For more information on the Gdo pins see CC1101 datasheet page 61.
 	inline xpcc::co::Result<void>
-	configureGdo(void *ctx, Gdo gdo, GdoSignalSelection sel,
+	configureGdo(Gdo gdo, GdoSignalSelection sel,
 		GdoInverted inverted = GdoInverted::No);
 
 	/// Writes configuration to the Rx/Tx Fifo threshold register
 	inline xpcc::co::Result<void>
-	configureFifoThreshold(void *ctx, FifoThreshold threshold,
+	configureFifoThreshold(FifoThreshold threshold,
 		AdcRetention retention,
 		RxAttenuation attenuation = RxAttenuation::dB0);
 
 	/// Configures the 16-bit sync word.
 	inline xpcc::co::Result<void>
-	configureSyncWord(void *ctx, uint16_t sync);
+	configureSyncWord(uint16_t sync);
 
 	/// Configures the packet length.
 	///
 	/// If variable packet length mode is used, this specifies the maximum
 	/// packet length allowed. `length` must be differnt from 0.
 	inline xpcc::co::Result<void>
-	configurePacketLength(void *ctx, uint8_t length);
+	configurePacketLength(uint8_t length);
 
 	/// Configures the PKTCTRL1 register
 	///
@@ -124,7 +124,7 @@ public:
 	///        used to gate sync word detection. When `preambleQualityThreshold`
 	///        is `0`, a sync word is always accepted.
 	inline xpcc::co::Result<void>
-	configurePacketAutomationControl1(void *ctx,
+	configurePacketAutomationControl1(
 		uint8_t preambleQualityThreshold,
 		CrcAutoFlush auto_flush,
 		AppendStatus append_status,
@@ -132,7 +132,7 @@ public:
 
 	/// Configures the PKTCTRL0 register
 	inline xpcc::co::Result<void>
-	configurePacketAutomationControl0(void *ctx,
+	configurePacketAutomationControl0(
 		DataWhitening data_whitening,
 		PacketFormat packet_format,
 		CrcCalculation crc,
@@ -142,50 +142,50 @@ public:
 	///
 	/// 0x00 and 0xff can be used for broadcasts, see #AddressCheck.
 	inline xpcc::co::Result<void>
-	configureAddress(void *ctx, uint8_t address);
+	configureAddress(uint8_t address);
 
 	/// Configures the channel number
 	///
 	/// @param channel will be multiplied by the channel spacing and added to
 	///        the base frequency.
 	inline xpcc::co::Result<void>
-	configureChannelNumber(void *ctx, uint8_t channel);
+	configureChannelNumber(uint8_t channel);
 
 	/// Configures the IF frequency used in Rx mode.
 	///
 	/// TODO: find out what this exactly does.
 	inline xpcc::co::Result<void>
-	configureIfFrequency(void *ctx, uint8_t if_freq);
+	configureIfFrequency(uint8_t if_freq);
 
 	/// Configures the frequency offset
 	///
 	/// TODO: find out what this exactly does.
 	inline xpcc::co::Result<void>
-	configureFrequencyOffset(void *ctx, int8_t freq_off);
+	configureFrequencyOffset(int8_t freq_off);
 
 	/// Configures the base frequency
 	///
 	/// TODO: see how we can make this a little bit more readable
 	inline xpcc::co::Result<void>
-	configureBaseFrequency(void *ctx, uint32_t base_freq);
+	configureBaseFrequency(uint32_t base_freq);
 
 	/// Configures the data rate and the bandwidth
 	///
 	/// TODO: see how we can make this a little bit more readable
 	inline xpcc::co::Result<void>
-	configureDataRateAndBandwidth(void *ctx,
+	configureDataRateAndBandwidth(
 		uint8_t data_rate_m, uint8_t data_rate_e, ChannelBandwidth bw);
 
 	/// Configures the modulation format, encoding and sync mode
 	inline xpcc::co::Result<void>
-	configureModem2(void *ctx,
+	configureModem2(
 		ModulationFormat mod_format, SyncMode sync_mode,
 		ManchesterEncoding manchester = ManchesterEncoding::Disabled,
 		DigitalDcBlockingFilter dc_block = DigitalDcBlockingFilter::Enabled);
 
 	/// Configures the channel spacing, the length of the preamble and the FEC
 	inline xpcc::co::Result<void>
-	configureModem1(void *ctx,
+	configureModem1(
 		uint8_t channel_spacing_m, uint8_t channel_spacing_e,
 		PreambleLength preamble_length = PreambleLength::Bytes4,
 		ForwardErrorCorrection fec = ForwardErrorCorrection::Disabled);
@@ -194,13 +194,13 @@ public:
 	///
 	/// TODO: find out what exactly this does
 	inline xpcc::co::Result<void>
-	configureDeviation(void *ctx, uint8_t deviation_m, uint8_t deviation_e);
+	configureDeviation(uint8_t deviation_m, uint8_t deviation_e);
 
 	/// Configures part of the Main Radio State Machine
 	///
 	/// TODO: see how we can make this a little bit more readable
 	inline xpcc::co::Result<void>
-	configureMainRadioFsm2(void *ctx,
+	configureMainRadioFsm2(
 		uint8_t rx_time,
 		RxTimeRssi rx_time_rssi = RxTimeRssi::Disabled,
 		RxTimeQual rx_time_qual = RxTimeQual::Disabled);
@@ -209,14 +209,14 @@ public:
 	///
 	/// TODO: see how we can make this a little bit more readable
 	inline xpcc::co::Result<void>
-	configureMainRadioFsm1(void *ctx,
+	configureMainRadioFsm1(
 		CcaMode cca, RxOffMode rx_off_mode, TxOffMode tx_off_mode);
 
 	/// Configures part of the Main Radio State Machine
 	///
 	/// TODO: see how we can make this a little bit more readable
 	inline xpcc::co::Result<void>
-	configureMainRadioFsm0(void *ctx,
+	configureMainRadioFsm0(
 		FsAutoCallibration auto_cal,
 		PowerTimeout power_timeout = PowerTimeout::Count64,
 		PinControl pin_control = PinControl::Disabled,
@@ -224,7 +224,7 @@ public:
 
 	/// Configures the Frequency Offset Compensation Algorithm
 	inline xpcc::co::Result<void>
-	configureFrequencyOffsetCompensation(void *ctx,
+	configureFrequencyOffsetCompensation(
 		FocBsCsGate bs_cs_gate,
 		FocPreK pre_k,
 		FocPostK post_kl = FocPostK::KOver2,
@@ -232,7 +232,7 @@ public:
 
 	/// Configures the Bit Synchronization Algorithm
 	inline xpcc::co::Result<void>
-	configureBitSynchronization(void *ctx,
+	configureBitSynchronization(
 		BitSynchronizationPreKI  pre_ki  = BitSynchronizationPreKI::KI2,
 		BitSynchronizationPreKP  pre_kp  = BitSynchronizationPreKP::KP3,
 		BitSynchronizationPostKI post_ki = BitSynchronizationPostKI::KIOver2,
@@ -241,7 +241,7 @@ public:
 
 	/// Configures the Adjustable Gain Control Algorithm
 	inline xpcc::co::Result<void>
-	configureAgc(void *ctx,
+	configureAgc(
 		MaxDVgaGain max_dvga_gain,
 		MaxLnaGain  max_lna_gain = MaxLnaGain::Max,
 		MagnTarget  magn_target  = MagnTarget::dB33,
@@ -258,11 +258,11 @@ public:
 	///
 	/// TODO: see how we can make this a little bit more readable
 	inline xpcc::co::Result<void>
-	configureEvent0Timeout(void *ctx, uint16_t timeout_value);
+	configureEvent0Timeout(uint16_t timeout_value);
 
 	/// Configures the wake on radio
 	inline xpcc::co::Result<void>
-	configureWakeOnRadio(void *ctx,
+	configureWakeOnRadio(
 		WorResolution wor_resolution,
 		PowerDownSignalToRcOscialltor
 			power_down = PowerDownSignalToRcOscialltor::Default,
@@ -275,7 +275,7 @@ public:
 	/// Basically these are all magic values without any real description
 	/// in the TI datasheet (page 89).
 	inline xpcc::co::Result<void>
-	configureRxFrontEnd(void *ctx,
+	configureRxFrontEnd(
 		uint8_t lna_current = 1,
 		uint8_t lna2mix_current = 1,
 		uint8_t lodiv_buf_current_rx = 1,
@@ -283,7 +283,7 @@ public:
 
 	/// Configures the tx front end
 	inline xpcc::co::Result<void>
-	configureTxFrontEnd(void *ctx,
+	configureTxFrontEnd(
 		uint8_t pa_power_index = 0,		///< points to value in the PATABLE
 		uint8_t lodiv_buf_current = 1	///< magic value
 		);
@@ -297,7 +297,7 @@ public:
 	/// Basically these are all magic values without any real description
 	/// in the TI datasheet (page 89-90).
 	inline xpcc::co::Result<void>
-	configureFrequencySynthesizerCalibration321(void *ctx,
+	configureFrequencySynthesizerCalibration321(
 		uint8_t fs_cal_3, uint8_t fs_cal_2, uint8_t fs_cal_1);
 
 	/// Configures the lowest byte of the Frequency Synthesizer Calibration
@@ -309,14 +309,14 @@ public:
 	/// Basically these are all magic values without any real description
 	/// in the TI datasheet (page 89-90).
 	inline xpcc::co::Result<void>
-	configureFrequencySynthesizerCalibration0(void *ctx, uint8_t fs_cal_0);
+	configureFrequencySynthesizerCalibration0(uint8_t fs_cal_0);
 
 	/// Configures the RC Oscillator
 	///
 	/// Basically these are all magic values without any real description
 	/// in the TI datasheet (page 90).
 	inline xpcc::co::Result<void>
-	configureRcOscillator(void *ctx, uint8_t high_byte = 0x41, uint8_t low_byte = 0x00);
+	configureRcOscillator(uint8_t high_byte = 0x41, uint8_t low_byte = 0x00);
 
 	// FSTEST is "For test only. Do not write to this register."
 
@@ -325,7 +325,7 @@ public:
 	/// Basically these are all magic values without any real description
 	/// in the TI datasheet (page 91).
 	inline xpcc::co::Result<void>
-	configureTest(void *ctx,
+	configureTest(
 		VcoSelectionCalibration vco_cal,
 		uint8_t ptest    = 0x7f,
 		uint8_t agc_test = 0x3f,
@@ -336,31 +336,31 @@ public:
 
 	/// Sends data from a max 61 byte long buffer
 	inline xpcc::co::Result<void>
-	sendData(void *ctx, const uint8_t *buffer, const size_t len);
+	sendData(const uint8_t *buffer, const size_t len);
 
 	//-------------------------------------------------------------------------
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>
-	readRegister(void *ctx, const Register reg);
+	readRegister(const Register reg);
 
 	/// Reads values from `length` registers starting at the `reg`
 	///
 	/// The output will be written to memory starting at `values`.
 	/// Make sure that `length` bytes of memory are available.
 	xpcc::co::Result<void>
-	readRegister(void *ctx, const Register reg, uint8_t* values, const size_t length);
+	readRegister(const Register reg, uint8_t* values, const size_t length);
 
 	/// Writes `value` to `reg`.
 	xpcc::co::Result<void>
-	writeRegister(void *ctx, const Register reg, const uint8_t value);
+	writeRegister(const Register reg, const uint8_t value);
 
 	/// Writes `length` values to registers starting at `reg`.
 	xpcc::co::Result<void>
-	writeRegister(void *ctx, const Register reg, const uint8_t* values, const size_t length);
+	writeRegister(const Register reg, const uint8_t* values, const size_t length);
 
 	/// Sends command to the CC1101 chip.
 	xpcc::co::Result<void>
-	writeCommand(void *ctx, const Command command);
+	writeCommand(const Command command);
 
 private:
 	/// Spi Master interface the cc1101 chip is connected to
