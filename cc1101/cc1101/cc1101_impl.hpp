@@ -431,6 +431,64 @@ CC1101<Configuration>::sendData(const uint8_t *buffer, const size_t len)
 	CO_END();
 }
 
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::setupTransmission(const size_t packet_length)
+{
+	CO_BEGIN();
+	// set data length
+	CO_CALL(writeRegister(Register::TXFIFO, min(static_cast<size_t>(61), packet_length)));
+	// prepare tx transmission
+	Cs::reset();
+	// wait for Miso to go low
+	// FIXME: see `readRegister`
+	CO_WAIT_UNTIL(!Miso::read());
+	CO_CALL(Spi::transfer(
+		static_cast<uint8_t>(Register::TXFIFO) |
+		static_cast<uint8_t>(TransferMode::WriteBurst)));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::writeToTx(const uint8_t *buffer, const size_t len)
+{
+	static size_t ii;
+	CO_BEGIN();
+	for(ii = 0; ii < len; ++ii) {
+		CO_CALL(Spi::transfer(buffer[ii]));
+	}
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::writeToTx(const uint8_t byte)
+{
+	CO_BEGIN();
+	CO_CALL(Spi::transfer(byte));
+	CO_END();
+}
+
+template<typename Configuration>
+xpcc::co::Result<void>
+CC1101<Configuration>::startTransmission()
+{
+	CO_BEGIN();
+	Cs::set();
+	// Go Into Tx State
+	CO_CALL(writeCommand(Command::STX));
+	// Wait for Gdo0 to go high (i.e. until sync word is transmitted)
+	CO_WAIT_UNTIL(Gdo0::read());
+	// Wait for Gdo0 to go low  (i.e. until the end of the packet)
+	CO_WAIT_WHILE(Gdo0::read());
+	// Go to IDLE state
+	CO_CALL(writeCommand(Command::SIDLE));
+	// Flush Tx Fifo
+	CO_CALL(writeCommand(Command::SFTX));
+	CO_END();
+}
+
 //-----------------------------------------------------------------------------
 template<typename Configuration>
 xpcc::co::Result<uint8_t>

@@ -338,6 +338,22 @@ public:
 	inline xpcc::co::Result<void>
 	sendData(const uint8_t *buffer, const size_t len);
 
+	/// Puts the CC1101 IC into send mode
+	inline xpcc::co::Result<void>
+	setupTransmission(const size_t packet_length);
+
+	/// Writes a number of bytes to the TX register.
+	inline xpcc::co::Result<void>
+	writeToTx(const uint8_t *buffer, const size_t len);
+
+	/// Writes one byte to the TX register.
+	inline xpcc::co::Result<void>
+	writeToTx(const uint8_t byte);
+
+	/// Call this after setting up a transmission and writing bytes to the Tx buffer.
+	inline xpcc::co::Result<void>
+	startTransmission();
+
 	//-------------------------------------------------------------------------
 	/// Reads and returns value of register.
 	xpcc::co::Result<uint8_t>
