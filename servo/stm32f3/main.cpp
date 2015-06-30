@@ -1,5 +1,5 @@
 #include <xpcc/architecture.hpp>
-#include "../../../xpcc/examples/stm32f3_discovery/stm32f3_discovery.hpp"
+#include "../../xpcc/examples/stm32f3_discovery/stm32f3_discovery.hpp"
 
 
 
