@@ -31,7 +31,7 @@ if __name__ == "__main__":
 	downsample = 64
 
 
-	inp = [int(b) for b in signal]
+	inp = [int(b) for b in signal]#sinyal bir arrayse mesela arrayin tüm elemanlarını integera cast edip yeni bir arraye yazıyor
 	out = scipy.signal.decimate(inp, downsample)
 
 
